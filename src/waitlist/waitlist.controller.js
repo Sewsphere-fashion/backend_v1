@@ -1,12 +1,13 @@
-import CreateWaitlist from "./waitlist.service";
-import ResponseHandler from "../utils/responseHandler";
+import CreateWaitlist from "./waitlist.service.js";
+import ResponseHandler from "../utils/responseHandler.js";
 
 class WaitListController{
 
     static createEmail = async(req,res,next)=>{
 
         try{
-            const user = await CreateWaitlist.waitlistEmail(req.body)
+            const {email,role} = req.body
+            const user = await CreateWaitlist.waitlistEmail(email,role)
             return ResponseHandler.success(res,"Successfully added to the waitlist",user)
         }
         catch(error){

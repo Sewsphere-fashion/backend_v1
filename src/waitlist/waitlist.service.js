@@ -1,19 +1,31 @@
-import AppError from "../errorHandlers/appError";
-import Waitlist from "./waitlist.model";
+import AppError from "../errorHandlers/appError.js";
+import Waitlist from "./waitlist.model.js";
+import EmailsVerifications from "../helpers/sendEmails.js";
 
 class WaitlistService{
 
-    static waitlistEmail = async(email)=>{
+    static waitlistEmail = async(email,role)=>{
 
-        // ensures the right mail format
-        const normalizedEmail = email.toLowerCase().trim()
-        const existingUser = await Waitlist.findOne({email:normalizedEmail})
+        
+        const existingUser = await Waitlist.findOne({email})
 
         if(existingUser){
-            throw new AppError("Email already exists",400)
+            throw new AppError("Email already exists",409)
         }
 
-        const user = await Waitlist.create({email:normalizedEmail})
+        const user = await Waitlist.create({email,role})
+
+        // send verification email
+       try{
+        await EmailsVerifications.sendWaitlistWelcome(email,role)
+        console.log("Welcome email sent successfully");
+        
+       }
+       catch(err){
+        console.error("failed to send welcome mail",err);
+        
+       }
+       
         return user
     }
 
