@@ -17,6 +17,4 @@ app.use("/api/waitlist",RateLimiter.waitlistLimiter,waitlistRouter)
 // error handlers
 app.use(globalErrorHandler)
 app.use(notFoundHandler)
-
-
 export default app;

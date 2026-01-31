@@ -5,8 +5,9 @@ import config from "../config/config.js";
 class EmailsVerifications {
   static waitlistEmail = async ({ to, subject, html }) => {
     try {
+        // email configuration
       const mailOptions = {
-        from: config.user || ' "SewSphere" <noreply@sewsphere.com',
+        from: config.user || ' "SewSphere" <noreply@sewsphere.com>',
         to,
         subject,
         html,
@@ -21,16 +22,17 @@ class EmailsVerifications {
   };
 
   // message template
-  static sendWaitlistWelcome = async (email, role) => {
+  static sendWaitlistWelcome = async (email, role = "client") => {
+
     const subject = "Welcome to SewSphere Waitlist! 🎉";
     const html = `
-        <h1>Welcome to SewSphere!🎉</h1>
-        <p>We're buildin a platform that connects verified professionals with clients in one seamless experience.</p>
+        <h1 style="font-size:18px">Welcome to SewSphere!🎉</h1>
+        <p>We're building a platform that connects verified professionals with clients in one seamless experience.</p>
         <p>You're officially on the waitlist as <strong>${role}</strong> </p>
         <p>We'll keep you updated and notify you as soon as early access opens.</p>
-        <p>Thank for joining us early - the future of fashion is being built here</p>
-        <hr></hr>
-        <p>© ${new Date().getFullYear()} SewSphere.All rights reserved</p>
+        <p>Thanks for joining us early - the future of fashion is being built here</p>
+        <hr>
+        <p>© ${new Date().getFullYear()} SewSphere. All rights reserved</p>
         
         `;
     return await this.waitlistEmail({
