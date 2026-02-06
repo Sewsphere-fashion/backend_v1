@@ -9,7 +9,8 @@ class WaitListController{
         try{
             const {email,role} = req.body
             const user = await CreateWaitlist.waitlistEmail(email,role)
-            Labels.controllerLog.info(`${req.body} successfully added to waitlist`)
+            Labels.controllerLog.info(`Email ${email} successfully added to waitlist as ${role}`)
+            
             return ResponseHandler.success(res,"Successfully added to the waitlist",user)
         }
         catch(error){
@@ -21,12 +22,13 @@ class WaitListController{
 
         try{
             const emails = await CreateWaitlist.getWaitlistEmails()
+            Labels.controllerLog.info(`All email retrieved: ${emails.length} total`)
             return ResponseHandler.success(res,"all waitlist email retrieved",emails)
         }
         catch(error){
+            Labels.controllerLog.error("Error retrieving emails")
             next(error)
         }
-
     }
 };
 

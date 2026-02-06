@@ -10,13 +10,11 @@ export const logger = createLogger({
     level:"info", //logs only if info.level is less than or equal to this level
     format:format.combine(
         format.timestamp({format:"YYYY-MM-DD HH:mm:ss"}),
-        // format.printf((info)=>{return `${info.timestamp} [${info.level.toUpperCase()}] [${info.label}] ${info.message}`})
+        format.printf((info)=>{return `${info.timestamp} [${info.level.toUpperCase()}] [${info.label}] ${info.message}`}),
         format.json()
     ),
     transports:[
-
         new transports.Console(),
-       
         new AxiomTransport({
             dataset:config.axiom_dataset,
             token:config.axiom_api_key
@@ -31,7 +29,6 @@ export const logger = createLogger({
     ,
     exitOnError:false
 });
-
 
 // graceful shutdown
 // finish writing all the logs before shutting down
