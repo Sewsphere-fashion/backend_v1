@@ -13,7 +13,7 @@ class ResponseHandler {
       message,
       data,
     });
-  }
+  } 
 
   static badRequest(res, message = "Bad Request", errors = null) {
     return res.status(400).json({

@@ -1,36 +1,38 @@
 import RateLimiter from "./guards/rateLimiter.js";
-import express, { urlencoded } from "express"
+import express, { urlencoded } from "express";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
-import helmet from "helmet"
+import helmet from "helmet";
 import waitlistRouter from "./waitlist/waitlist.route.js";
 import { globalErrorHandler } from "./errorHandlers/globalErrorHandler.js";
 import { notFoundHandler } from "./errorHandlers/notFoundError.js";
 import routeLogger from "./Middlewares/routeLogger.js";
 
-
-
-const app = express()
+const app = express();
 app.set("trust proxy", 1);
 
 // security middlewares
-app.use(helmet())
-app.use(express.json({limit:"10kb"}))
-app.use(urlencoded({extended:true,limit:"10kb"}))
-app.use(mongoSanitize())
-app.use(hpp())
+app.use(helmet());
+app.use(express.json({ limit: "10kb" }));
+app.use(urlencoded({ extended: true, limit: "10kb" }));
+app.use(mongoSanitize());
+app.use(hpp());
+// app.use(cors({
+//     origin:"frontend url",
+// credentials:true
+// }))
 
 // logging nad rate limiting
 // ratelimiter prevent brute attacks
-app.use(routeLogger)
-app.use(RateLimiter.limiter)
+app.use(routeLogger);
+app.use(RateLimiter.limiter);
 
 // route
-app.use("/api/waitlist",RateLimiter.waitlistLimiter,waitlistRouter)
+app.use("/api/waitlist", RateLimiter.waitlistLimiter, waitlistRouter);
 
 // error handlers
-app.use(notFoundHandler)
-app.use(globalErrorHandler)
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
 
 export default app;
