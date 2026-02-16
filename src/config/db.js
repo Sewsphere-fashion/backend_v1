@@ -17,7 +17,6 @@ const connectDb = async () => {
             database:conn.connection.name,
             port:conn.connection.port
         })
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
         
         // Connection event listeners
         mongoose.connection.on('error', (err) => {
