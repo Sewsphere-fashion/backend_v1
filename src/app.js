@@ -23,9 +23,9 @@ app.use(hpp());
 // credentials:true
 // }))
 
-// logging nad rate limiting
-// ratelimiter prevent brute attacks
+// logging route 
 app.use(routeLogger);
+// rate limiting
 app.use(RateLimiter.limiter);
 
 // route
