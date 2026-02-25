@@ -11,7 +11,7 @@ class WaitListController{
             const user = await CreateWaitlist.waitlistEmail(email,role)
             Labels.controllerLog.info(`Email ${email} successfully added to waitlist as ${role}`)
             
-            return ResponseHandler.success(res,"Successfully added to the waitlist",user)
+            return ResponseHandler.success(res,"Congratulations, you have been successfully added to the waitlist",user)
         }
         catch(error){
             next(error)

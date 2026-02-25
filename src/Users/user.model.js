@@ -11,25 +11,20 @@ const userSchema = new Schema(
       default: "client",
       required: true,
     },
-
-    // single URL
     profilePic: { type: String },
-
-    // multiple documents
     documents: [
       {
         url: { type: String },
-        type: { type: String },
-        uploadedAt: { type: Date, default: Date.now },
-      },
-    ],
-
-    designs: [
-      // multiple designs images
-      {
-        url: { type: String },
-        title: { type: String },
-        description: { type: String },
+        type: {
+          type: String,
+          enum: ["verification", "payment_proof", "contract"],
+        },
+        uploadedBy: { type: String, enum: ["designer", "client"] },
+        status: {
+          type: String,
+          enum: ["pending", "approved", "rejected"],
+          default: "pending",
+        },
         uploadedAt: { type: Date, default: Date.now },
       },
     ],
