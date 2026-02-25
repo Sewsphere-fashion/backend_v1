@@ -18,14 +18,15 @@ app.use(express.json({ limit: "10kb" }));
 app.use(urlencoded({ extended: true, limit: "10kb" }));
 app.use(mongoSanitize());
 app.use(hpp());
-// app.use(cors({
-//     origin:"frontend url",
-// credentials:true
-// }))
+app.use(cors({
+  origin: "https://frontend-six-eta-46.vercel.app",
+  methods: ["POST"]
+}));
 
-// logging nad rate limiting
-// ratelimiter prevent brute attacks
+
+// logging route 
 app.use(routeLogger);
+// rate limiting
 app.use(RateLimiter.limiter);
 
 // route

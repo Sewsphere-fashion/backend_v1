@@ -12,7 +12,7 @@ class WaitlistService {
         email: email,
         role: role,
       });
-      throw new AppError("Email already exists", 409);
+      throw new AppError("Email already exists on the waitlist", 409);
     }
 
     const user = await Waitlist.create({ email, role });

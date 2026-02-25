@@ -18,6 +18,24 @@ class RateLimiter {
     message: "Too many signup attempts,please try again later",
     skipSuccessfulRequests: true,
   });
+
+  static registerLimiter = rateLimit({
+    windowMs:60*60*1000,
+    max:5,
+    standardHeaders:true,
+    legacyHeaders:false,
+    message:"Too many registration attempts, please try again later",
+    skipSuccessfulRequests:true
+  });
+
+  static loginLimiter = rateLimit({
+    windowMs:15*60*1000,
+    max:5,
+    standardHeaders:true,
+    legacyHeaders:false,
+    message:"Too many login attempts,please try again",
+    skipSuccessfulRequests:true
+  })
 }
 
 export default RateLimiter;
