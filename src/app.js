@@ -30,7 +30,8 @@ app.use(routeLogger);
 app.use(RateLimiter.limiter);
 
 // route
-app.use("/api/waitlist", RateLimiter.waitlistLimiter, waitlistRouter);
+// app.use("/api/waitlist", RateLimiter.waitlistLimiter, waitlistRouter);
+app.use("/api/waitlist", waitlistRouter);
 
 // error handlers
 app.use(notFoundHandler);
