@@ -5,9 +5,6 @@ import waitlistValidationSchema from "./waitlist.validationSchema.js";
 
 const waitlistRouter = express.Router()
 
-waitlistRouter.use(express.json());
-waitlistRouter.use(express.urlencoded({extended:true}))
-
 waitlistRouter.post("/",validate(waitlistValidationSchema),WaitListController.createEmail)
 waitlistRouter.get("/",WaitListController.getAllEmails)
 
