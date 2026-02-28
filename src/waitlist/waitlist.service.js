@@ -22,12 +22,15 @@ class WaitlistService {
     });
 
     // send verification email
-    try {
       const emailLog = Labels.createLabel("emailVerifcationEmail");
+    try {
+      
       await EmailsVerifications.sendWaitlistWelcome(email, role);
       emailLog.info(`email verifcation sent to: ${email}`, {
         email: email,
+        
       });
+      
     } catch (err) {
       emailLog.error(`error sending verifcation mail to ${email}`, err);
     }
