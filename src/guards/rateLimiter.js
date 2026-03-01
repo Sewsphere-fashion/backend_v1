@@ -11,11 +11,11 @@ class RateLimiter {
   });
 
   static waitlistLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000,
-    max: 10,
+    windowMs: 2 * 60 * 1000,
+    max: 5,
     standardHeaders: true,
     legacyHeaders: false,
-    message: "Too many signup attempts,please try again later",
+    message: "Too many attempts,please try again later",
     skipSuccessfulRequests: true,
   });
 
