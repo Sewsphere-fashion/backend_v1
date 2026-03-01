@@ -8,5 +8,5 @@ export default{
     pass:process.env.EMAIL_PASS,
     axiom_api_key:process.env.AXIOM_API_KEY,
    axiom_dataset:process.env.AXIOM_DATASET,
-   resend_api:process.env.RENDER_API
+//    resend_api:process.env.RENDER_API
 }
