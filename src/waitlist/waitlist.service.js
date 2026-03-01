@@ -22,20 +22,21 @@ class WaitlistService {
     });
 
     // send verification email
-      const emailLog = Labels.createLabel("emailVerifcationEmail");
-    try {
-      
-      await EmailsVerifications.sendWaitlistWelcome(email, role);
-      emailLog.info(`email verifcation sent to: ${email}`, {
-        email: email,
-        
-      });
-      
-    } catch (err) {
-      emailLog.error(`error sending verifcation mail to ${email}`, err);
-    }
+       // 3️⃣ Send email asynchronously in the background
+    (async () => {
+      const emailLog = Labels.createLabel("emailVerificationEmail");
+      try {
+        await EmailsVerifications.sendWaitlistWelcome(email, role);
+        emailLog.info(`Email verification sent to: ${email}`, { email });
+      } catch (err) {
+        emailLog.error(`Error sending verification email to: ${email}`, err);
+      }
+    })();
+
+    // 4️⃣ Return the user immediately
+    // This allows your frontend to get a fast response
     return user;
-  };
+  }
 
   static getWaitlistEmails = async () => {
     try {
