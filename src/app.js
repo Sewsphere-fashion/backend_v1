@@ -20,7 +20,7 @@ app.use(urlencoded({ extended: true, limit: "10kb" }));
 app.use(hpp());
 app.use(cors({
   origin: "https://frontend-six-eta-46.vercel.app",
-  methods: ["POST"]
+  methods: ["POST","GET"]
 }));
 
 
@@ -30,8 +30,8 @@ app.use(routeLogger);
 app.use(RateLimiter.limiter);
 
 // route
-// app.use("/api/waitlist", RateLimiter.waitlistLimiter, waitlistRouter);
-app.use("/api/waitlist", waitlistRouter);
+app.use("/api/waitlist", RateLimiter.waitlistLimiter, waitlistRouter);
+// app.use("/api/waitlist", waitlistRouter);
 
 // error handlers
 app.use(notFoundHandler);
