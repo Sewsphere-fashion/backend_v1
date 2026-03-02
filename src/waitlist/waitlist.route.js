@@ -10,6 +10,9 @@ const waitlistRouter = express.Router()
 //     await sendNewEmail("olubiyibabajide@gmail.com","Designer")
 //     res.send("Email sent")
 // })
+waitlistRouter.get("/ping",(req,res)=>{
+     res.status(200).json({status : "alive"})
+})
 waitlistRouter.post("/",validate(waitlistValidationSchema),WaitListController.createEmail)
 waitlistRouter.get("/",WaitListController.getAllEmails)
 
