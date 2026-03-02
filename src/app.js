@@ -8,6 +8,7 @@ import waitlistRouter from "./waitlist/waitlist.route.js";
 import { globalErrorHandler } from "./errorHandlers/globalErrorHandler.js";
 import { notFoundHandler } from "./errorHandlers/notFoundError.js";
 import routeLogger from "./Middlewares/routeLogger.js";
+import pingRoute from "./pingRoute/ping.route.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -30,6 +31,7 @@ app.use(routeLogger);
 app.use(RateLimiter.limiter);
 
 // route
+// app.use("/api/waitlist/ping",pingRoute)
 app.use("/api/waitlist", RateLimiter.waitlistLimiter, waitlistRouter);
 // app.use("/api/waitlist", waitlistRouter);
 
