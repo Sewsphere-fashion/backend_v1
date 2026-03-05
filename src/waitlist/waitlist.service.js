@@ -1,7 +1,8 @@
 import AppError from "../errorHandlers/appError.js";
 import Waitlist from "./waitlist.model.js";
-import EmailsVerifications from "../helpers/sendEmails.js";
+// import EmailsVerifications from "../helpers/sendEmails.js";
 import Labels from "../utils/labels.js";
+import sendNewEmail from "../helpers/email.js";
 
 class WaitlistService {
   static waitlistEmail = async (email, role) => {
@@ -15,26 +16,21 @@ class WaitlistService {
       throw new AppError("Email already exists on the waitlist", 409);
     }
 
-    const user = await Waitlist.create({ email, role });
+    const user = await Waitlist.create({ email,role});
     Labels.serviceLog.info(`${email} successfully added to waitlist`, {
       email: email,
       role: role,
     });
-
-    // send verification email
-       // 3️⃣ Send email asynchronously in the background
+    
     (async () => {
       const emailLog = Labels.createLabel("emailVerificationEmail");
       try {
-        await EmailsVerifications.sendWaitlistWelcome(email, role);
+        await sendNewEmail(email, user.role);
         emailLog.info(`Email verification sent to: ${email}`, { email });
       } catch (err) {
         emailLog.error(`Error sending verification email to: ${email}`, err);
       }
     })();
-
-    // 4️⃣ Return the user immediately
-    // This allows your frontend to get a fast response
     return user;
   }
 
@@ -42,7 +38,7 @@ class WaitlistService {
     try {
       const getAllEmails = Labels.createLabel("allWaitlistEmail");
       const emails = await Waitlist.find();
-      getAllEmails.info(`All emails retrieved ${emails.lenght}`);
+      getAllEmails.info(`All emails retrieved ${emails.length}`);
       return emails;
     } catch (err) {
       getAllEmails.error(`Error retrieving emails`);

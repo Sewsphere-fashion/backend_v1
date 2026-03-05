@@ -8,7 +8,8 @@ import waitlistRouter from "./waitlist/waitlist.route.js";
 import { globalErrorHandler } from "./errorHandlers/globalErrorHandler.js";
 import { notFoundHandler } from "./errorHandlers/notFoundError.js";
 import routeLogger from "./Middlewares/routeLogger.js";
-import pingRoute from "./pingRoute/ping.route.js";
+// import pingRoute from "./pingRoute/ping.route.js";
+import config from "./config/config.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -20,7 +21,7 @@ app.use(urlencoded({ extended: true, limit: "10kb" }));
 // app.use(mongoSanitize());
 app.use(hpp());
 app.use(cors({
-  origin: "https://frontend-six-eta-46.vercel.app",
+  origin:config.frontend_URL,
   methods: ["POST","GET"]
 }));
 
