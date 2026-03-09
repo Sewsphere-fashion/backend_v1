@@ -36,7 +36,11 @@ app.use("/api/waitlist", (req, res, next) => {
     if (req.path === "/ping") return next(); // skip rate limiter
     RateLimiter.waitlistLimiter(req, res, next);
 }, waitlistRouter);
-// app.use("/api/waitlist", waitlistRouter);
+
+// ping route
+app.get("/ping", (req, res) => {
+  res.json({ status: "alive" });
+});
 
 // error handlers
 app.use(notFoundHandler);
