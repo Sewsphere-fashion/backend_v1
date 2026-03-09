@@ -37,7 +37,7 @@ const sendNewEmail = async (to, role) => {
 
     <div style="text-align:center; margin:35px 0;">
       <a href="https://www.sewsphere.co"
-         style="background:#ff4081; color:white; padding:14px 30px; border-radius:8px; text-decoration:none; font-size:15px;">
+         style="background:#C76B4A; color:white; padding:14px 30px; border-radius:8px; text-decoration:none; font-size:15px;">
          Visit SewSphere
       </a>
     </div>
