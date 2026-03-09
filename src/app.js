@@ -32,8 +32,10 @@ app.use(routeLogger);
 app.use(RateLimiter.limiter);
 
 // route
-// app.use("/api/waitlist/ping",pingRoute)
-app.use("/api/waitlist", RateLimiter.waitlistLimiter, waitlistRouter);
+app.use("/api/waitlist", (req, res, next) => {
+    if (req.path === "/ping") return next(); // skip rate limiter
+    RateLimiter.waitlistLimiter(req, res, next);
+}, waitlistRouter);
 // app.use("/api/waitlist", waitlistRouter);
 
 // error handlers

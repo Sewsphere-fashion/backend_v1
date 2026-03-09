@@ -3,7 +3,7 @@ import WaitListController from "./waitlist.controller.js"
 import validate from "../Middlewares/validationMiddleware.js";
 import waitlistValidationSchema from "./waitlist.validationSchema.js";
 // import sendNewEmail from "../helpers/email.js";
-
+// import ResponseHandler from "../utils/responseHandler.js"
 const waitlistRouter = express.Router()
 
 // waitlistRouter.get("/test-email",async(req,res)=>{
