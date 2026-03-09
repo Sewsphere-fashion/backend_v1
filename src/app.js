@@ -21,8 +21,8 @@ app.use(urlencoded({ extended: true, limit: "10kb" }));
 // app.use(mongoSanitize());
 app.use(hpp());
 app.use(cors({
-  origin:config.frontend_URL,
-  origin:"https://sewsphere.co",
+  // origin:config.frontend_URL,
+  origin:"https://www.sewsphere.co",
   methods: ["POST","GET"]
 }));
 
