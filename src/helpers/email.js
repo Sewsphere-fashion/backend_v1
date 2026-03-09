@@ -14,7 +14,7 @@ const sendNewEmail = async (to, role) => {
   <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; padding:40px 30px; border:1px solid #eaeaea;">
     
     <div style="text-align:center; margin-bottom:25px;">
-      <h1 style="color:#ff4081; font-size:26px; margin:0;">
+      <h1 style="color:#C76B4A; font-size:26px; margin:0;">
         Welcome to the SewSphere Waitlist 🎉
       </h1>
       <p style="font-size:18px; color:#333; margin-top:10px;">
@@ -42,7 +42,7 @@ const sendNewEmail = async (to, role) => {
       </a>
     </div>
 
-    <hr style="border:none; border-top:1px solid #eee; margin:30px 0;">
+    <hr style="border:none; border-top:1px solid #C76B4A; margin:30px 0;">
 
     <p style="font-size:13px; color:#888; text-align:center; margin-bottom:6px;">
       You're receiving this email because you joined the SewSphere waitlist.
