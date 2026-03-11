@@ -9,5 +9,6 @@ export default{
     axiom_api_key:process.env.AXIOM_API_KEY,
    axiom_dataset:process.env.AXIOM_DATASET,
    resend_api:process.env.RESEND_API,
-   frontend_URL:process.env.FRONTEND_URL
+   frontend_URL:process.env.FRONTEND_URL,
+   secret_key:process.env.SECRET_KEY
 }
