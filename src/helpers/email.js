@@ -171,7 +171,7 @@ export const waitlistFollowUpEmail = async (to, role) => {
 
         <div style="text-align:center; margin:35px 0;">
           <a href="https://fashionweekonline.com/live-stream-view"
-             style="background:#C76B4A; color:white; padding:14px 30px; border-radius:8px; text-decoration:none; font-size:15px;">
+             style="background:#C76B4A; color:white; padding:14px 30px; border-radius:8px; text-decoration:none; font-size:12px;">
              Watch Latest Fashion Shows 🎥
           </a>
         </div>
