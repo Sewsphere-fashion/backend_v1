@@ -2,7 +2,7 @@ import AppError from "../errorHandlers/appError.js";
 import Waitlist from "./waitlist.model.js";
 // import EmailsVerifications from "../helpers/sendEmails.js";
 import Labels from "../utils/labels.js";
-import sendNewEmail from "../helpers/email.js";
+import {sendNewEmail} from "../helpers/email.js";
 
 class WaitlistService {
   static waitlistEmail = async (email, role) => {

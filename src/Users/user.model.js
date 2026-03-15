@@ -2,34 +2,67 @@ import { Schema, model } from "mongoose";
 
 const userSchema = new Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    firstName: {
+      type: String,
+      required: [true, "Firstname is required"],
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: [true, "Lastname is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      required: [true, "Email is required"],
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      select: false,
+    },
+    profilePicture: {
+      type: String,
+    },
     role: {
       type: String,
-      enum: ["designer", "client", "admin"],
+      enum: ["client", "designer", "admin"],
       default: "client",
       required: true,
     },
-    profilePic: { type: String },
-    documents: [
-      {
-        url: { type: String },
-        type: {
-          type: String,
-          enum: ["verification", "payment_proof", "contract"],
-        },
-        uploadedBy: { type: String, enum: ["designer", "client"] },
-        status: {
-          type: String,
-          enum: ["pending", "approved", "rejected"],
-          default: "pending",
-        },
-        uploadedAt: { type: Date, default: Date.now },
-      },
-    ],
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    passwordChangedAt: {
+      type: Date,
+      default: null,
+    },
+
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationExpire: {
+      type: Date,
+      default: null,
+    },
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-export default model("User", userSchema);
+const User = model("User", userSchema);
+
+export default User;
