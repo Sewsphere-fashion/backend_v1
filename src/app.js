@@ -10,6 +10,7 @@ import { notFoundHandler } from "./errorHandlers/notFoundError.js";
 import routeLogger from "./Middlewares/routeLogger.js";
 // import pingRoute from "./pingRoute/ping.route.js";
 import config from "./config/config.js";
+import userRoute from "./Users/user.route.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -37,6 +38,8 @@ app.use("/api/waitlist", (req, res, next) => {
     if (req.path === "/ping") return next(); // skip rate limiter
     RateLimiter.waitlistLimiter(req, res, next);
 }, waitlistRouter);
+
+app.use("/api/users",userRoute)
 
 // ping route
 app.get("/ping", (req, res) => {

@@ -3,6 +3,7 @@ import connectDb from "./config/db.js";
 import config from "./config/config.js";
 import Labels from "./utils/labels.js";
 import mongoose from "mongoose";
+import startFollowUpManager from "./cronNotifications/waitlistNotifications.js";
 
 // reference to server so it can be stopped later
 let server;
@@ -10,6 +11,7 @@ const startServer = async () => {
   try {
     await connectDb();
     Labels.dbLog.info("Database connected");
+    startFollowUpManager()
 
     server = app.listen(config.port || 5000, () => {
       Labels.dbLog.info("app up and running");

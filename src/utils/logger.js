@@ -19,12 +19,6 @@ export const logger = createLogger({
             dataset:config.axiom_dataset,
             token:config.axiom_api_key
         })
-        // writes all logs to console
-        // new transports.Console(),
-        // write all logs with level "error" to a file error.log
-        // new transports.File({filename:"error.log",level:"error"}),
-        // writes all logs to combined.log
-        // new transports.File({filename:"combined.log"})
     ]
     ,
     exitOnError:false

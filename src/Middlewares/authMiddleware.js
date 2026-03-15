@@ -1,3 +1,5 @@
+import User from "../Users/user.model.js"
+
 export const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;

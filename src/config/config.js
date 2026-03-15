@@ -10,5 +10,7 @@ export default{
    axiom_dataset:process.env.AXIOM_DATASET,
    resend_api:process.env.RESEND_API,
    frontend_URL:process.env.FRONTEND_URL,
-   secret_key:process.env.SECRET_KEY
+   secret_key:process.env.SECRET_KEY,
+   email_verification_api:process.env.EMAILVERIFICATIONAPI,
+   waitlist_followUpMail_api:process.env.WAITLISTFOLLOWUPMAIL
 }

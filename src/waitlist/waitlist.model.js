@@ -12,6 +12,10 @@ const waitlistSchema = new mongoose.Schema({
         type:String,
         enum:["client","designer","interested"],
         default:"interested"
+    },
+    notified:{
+        type:Boolean,
+        default:false
     }
 },
 {timestamps:true}
