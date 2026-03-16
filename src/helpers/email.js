@@ -146,42 +146,46 @@ export const waitlistFollowUpEmail = async (to, role) => {
 
     const html = `
     <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px 15px;">
-      <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; padding:40px 30px; border:1px solid #eaeaea;">
-        
-        <div style="text-align:center; margin-bottom:25px;">
-          <h1 style="color:#C76B4A; font-size:26px; margin:0;">
-            Exciting Updates Are Coming! 🚀
-          </h1>
-          <p style="font-size:18px; color:#333; margin-top:10px;">
-            Stay tuned — fashion awaits!
-          </p>
-        </div>
+  
+  <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; padding:40px 25px; border:1px solid #eaeaea;">
 
-        <p style="font-size:16px; color:#444; line-height:1.6;">
-          Hi there! We’re thrilled to have you on the SewSphere waitlist.
-        </p>
+    <div style="text-align:center; margin-bottom:25px;">
+      <h1 style="color:#C76B4A; font-size:26px; margin:0;">
+        Exciting Updates Are Coming! 🚀
+      </h1>
 
-        <p style="font-size:16px; color:#444; line-height:1.6;">
-          Our launch is approaching fast, and we can’t wait to share our platform connecting talented designers with people looking for custom fashion.
-        </p>
+      <p style="font-size:18px; color:#333; margin-top:10px;">
+        Stay tuned — fashion awaits!
+      </p>
+    </div>
 
-        <p style="font-size:16px; color:#444; line-height:1.6;">
-          While you wait, why not catch some of the latest fashion shows from around the world? Stay inspired and get a glimpse of what’s coming!
-        </p>
+    <p style="font-size:16px; color:#444; line-height:1.7; text-align:justify;">
+      Hi there! We’re thrilled to have you on the SewSphere waitlist.
+    </p>
 
-        <div style="text-align:center; margin:35px 0;">
-          <a href="https://lagosfashionweek.ng/"
-             style="background:#C76B4A; color:white; padding:14px 30px; border-radius:8px; text-decoration:none; font-size:12px;">
-             Watch Latest Fashion Shows 🎥
-          </a>
-        </div>
+    <p style="font-size:16px; color:#444; line-height:1.7; text-align:justify;">
+      Our launch is approaching fast, and we can’t wait to share our platform connecting talented designers with people looking for custom fashion.
+    </p>
 
-        <hr style="border:none; border-top:1px solid #C76B4A; margin:30px 0;">
+    <p style="font-size:16px; color:#444; line-height:1.7; text-align:justify;">
+      While you wait, why not catch some of the latest fashion shows from around the world? Stay inspired and get a glimpse of what’s coming!
+    </p>
 
-        <p style="font-size:13px; color:#888; text-align:center; margin-bottom:6px;">
-          You're receiving this email because you joined the SewSphere waitlist.
-        </p>
+    <div style="text-align:center; margin:30px 0;">
+      <a href="https://lagosfashionweek.ng/"
+         style="display:inline-block; background:#C76B4A; color:white; padding:10px 18px; border-radius:8px; text-decoration:none; font-size:14px;">
+         Watch Fashion Shows 🎥
+      </a>
+    </div>
 
+    <hr style="border:none; border-top:1px solid #C76B4A; margin:30px 0;">
+
+    <p style="font-size:13px; color:#888; text-align:center;">
+      You're receiving this email because you joined the SewSphere waitlist.
+    </p>
+
+  </div>
+</div>
         <p style="font-size:13px; color:#888; text-align:center;">
           © ${currentYear} SewSphere. All rights reserved
         </p>
