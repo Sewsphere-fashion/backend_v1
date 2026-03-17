@@ -6,9 +6,10 @@ import bcrypt from "bcrypt";
 class Guards{
 
   static createJwt =(user)=>{
+   
     const token = jwt.sign(
     {
-      id: user._id,
+      id: user.id,
       email: user.email,
       role: user.role,
     },

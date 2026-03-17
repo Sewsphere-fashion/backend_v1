@@ -141,7 +141,7 @@ console.log("HASHED token stored in DB:", hashedEmailToken);
     }
 
     // Generate JWT token
-    const token = Guards.createJwt({ id: user._id, role: user.role });
+    const token = Guards.createJwt({ id: user._id, role: user.role,email:user.email });
 
     Labels.serviceLog.info(`User logged in successfully`, { email, role: user.role });
 
@@ -158,6 +158,7 @@ console.log("HASHED token stored in DB:", hashedEmailToken);
         }
     };
 };
+
 // send forgot password
 static forgotPassword = async (email) => {
     if (!email) throw new AppError("Email is required", 400);

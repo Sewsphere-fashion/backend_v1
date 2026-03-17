@@ -6,7 +6,7 @@ import RateLimiter from "../guards/rateLimiter.js"
 const userRoute = express.Router()
 
 userRoute.post("/register",RateLimiter.registerLimiter,registerUser)
-userRoute.get("/verify-email",verifyEmail)
+userRoute.patch("/verify-email",verifyEmail)
 userRoute.post("/resend-verification", RateLimiter.resendVerificationLimiter, resendVerification);
 userRoute.post("/login",RateLimiter.loginLimiter,loginUser)
 userRoute.post("/forgot-password",RateLimiter.forgotPasswordLimiter,forgotPassword)

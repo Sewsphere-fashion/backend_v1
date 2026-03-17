@@ -1,4 +1,8 @@
 import User from "../Users/user.model.js"
+import AppError from "../errorHandlers/appError.js";
+import jwt from "jsonwebtoken"
+import config from "../config/config.js";
+// import {promisify} from "util"
 
 export const authMiddleware = async (req, res, next) => {
   try {
@@ -24,7 +28,6 @@ export const authMiddleware = async (req, res, next) => {
       return next(new AppError("User no longer exists", 401));
     }
 
-    // Reject tokens issued before a password change
     if (user.passwordChangedAt) {
       const changedAt = parseInt(user.passwordChangedAt.getTime() / 1000);
       if (decoded.iat < changedAt) {

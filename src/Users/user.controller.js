@@ -1,6 +1,9 @@
 // controllers/userController.js
 import UserService from "./user.service.js";
-import { registerUserValidationSchema,loginUserValidationSchema } from "./user.validation.js";
+import {
+  registerUserValidationSchema,
+  loginUserValidationSchema,
+} from "./user.validation.js";
 import AppError from "../errorHandlers/appError.js";
 import ResponseHandler from "../utils/responseHandler.js";
 import Labels from "../utils/labels.js";
@@ -32,7 +35,7 @@ export const registerUser = async (req, res, next) => {
       res,
       result.message,
       { user: result.user },
-      201
+      201,
     );
   } catch (err) {
     Labels.controllerLog.error("Unexpected error during user registration", {
@@ -47,31 +50,35 @@ export const verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.query;
     const result = await UserService.verifyEmail(token);
-    Labels.controllerLog.info(`${result.user.email} successfully verified`, { email: result.user.email });
+    Labels.controllerLog.info(`${result.user.email} successfully verified`, {
+      email: result.user.email,
+    });
     //  return res.redirect("/verification-success")
 
     return res.status(200).json({
-      status:"success",
-      message:"Email verifcation successful"
-    })
-  } catch (err) {
-
-    Labels.controllerLog.error("Email verification failed", { error: err });
-      // return res.redirect("/verification-failed")
-      return res.status(err.statusCode || 400).json({
-        status:"failed",
-        message:"Email verification failed"
-      })
-      next(error)
-  }
-  }
-
-  export const resendVerification = async (req, res, next) => {
-  try {
-    const { error, value } = resendVerificationValidationSchema.validate(req.body, {
-      abortEarly: false,
-      stripUnknown: true,
+      status: "success",
+      message: "Email verifcation successful",
     });
+  } catch (err) {
+    Labels.controllerLog.error("Email verification failed", { error: err });
+    // return res.redirect("/verification-failed")
+    return res.status(err.statusCode || 400).json({
+      status: "failed",
+      message: "Email verification failed",
+    });
+    next(error);
+  }
+};
+
+export const resendVerification = async (req, res, next) => {
+  try {
+    const { error, value } = resendVerificationValidationSchema.validate(
+      req.body,
+      {
+        abortEarly: false,
+        stripUnknown: true,
+      },
+    );
 
     if (error) {
       const messages = error.details.map((detail) => detail.message);
@@ -84,7 +91,9 @@ export const verifyEmail = async (req, res, next) => {
 
     const result = await UserService.resendVerification(value.email);
 
-    Labels.controllerLog.info("Verification email resent", { email: value.email });
+    Labels.controllerLog.info("Verification email resent", {
+      email: value.email,
+    });
 
     return res.status(200).json({
       status: "success",
@@ -98,7 +107,6 @@ export const verifyEmail = async (req, res, next) => {
     });
   }
 };
-
 
 export const loginUser = async (req, res, next) => {
   try {
@@ -127,7 +135,7 @@ export const loginUser = async (req, res, next) => {
       res,
       "Login successful",
       { user: result.user, token: result.token },
-      200
+      200,
     );
   } catch (err) {
     Labels.controllerLog.error("Unexpected error during login", {
@@ -136,7 +144,7 @@ export const loginUser = async (req, res, next) => {
     });
     next(err);
   }
-}
+};
 
 export const forgotPassword = async (req, res, next) => {
   try {
