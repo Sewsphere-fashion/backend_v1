@@ -12,5 +12,6 @@ export default{
    frontend_URL:process.env.FRONTEND_URL,
    secret_key:process.env.SECRET_KEY,
    email_verification_api:process.env.EMAIL_VERIFICATION_API,
-   waitlist_followUpMail_api:process.env.WAITLIST_FOLLOWUP_MAIL_API
+   waitlist_followUpMail_api:process.env.WAITLIST_FOLLOWUP_MAIL_API,
+   reset_password_mail:process.env.RESET_PASSWORD_EMAIL_API
 }

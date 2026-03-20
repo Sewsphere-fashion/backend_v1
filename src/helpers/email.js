@@ -4,8 +4,9 @@ import config from "../config/config.js";
 import Labels from "../utils/labels.js";
 
 const resend = new Resend(config.resend_api);
-const emailVerificationApi= new Resend(config.email_verification_api)
-const waitlistfollowUp = new Resend(config.waitlist_followUpMail_api)
+const emailVerificationApi = new Resend(config.email_verification_api);
+const waitlistfollowUp = new Resend(config.waitlist_followUpMail_api);
+const resetPasswordEmail = new Resend(config.reset_password_mail);
 
 // send waitlist welcome message
 export const sendNewEmail = async (to, role) => {
@@ -21,6 +22,7 @@ export const sendNewEmail = async (to, role) => {
       <h1 style="color:#C76B4A; font-size:26px; margin:0;">
         Welcome to the SewSphere Waitlist 🎉
       </h1>
+      <p>Hi ${to}</p>
       <p style="font-size:18px; color:#333; margin-top:10px;">
         You’re officially in!
       </p>
@@ -67,13 +69,15 @@ export const sendNewEmail = async (to, role) => {
       subject: "Welcome to SewSphere! 🎉",
       html,
     });
-    Labels.serviceLog.info(`Welcome email sent to ${to}`,{to})
+    Labels.serviceLog.info(`Welcome email sent to ${to}`, { to });
     return response;
   } catch (error) {
-    Labels.serviceLog.error(`Failed to send welcome email to ${to}`,{error,to})
+    Labels.serviceLog.error(`Failed to send welcome email to ${to}`, {
+      error,
+      to,
+    });
   }
 };
-
 
 // send verification email
 export const sendVerificationEmail = async (to, token) => {
@@ -91,6 +95,7 @@ export const sendVerificationEmail = async (to, token) => {
       <h1 style="color:#C76B4A; font-size:26px; margin:0;">
         Welcome to SewSphere 🎉
       </h1>
+      <p>Hi ${to}</p>
       <p style="font-size:18px; color:#333; margin-top:10px;">
         Verify your email to get started
       </p>
@@ -131,10 +136,13 @@ export const sendVerificationEmail = async (to, token) => {
       subject: "Verify Your Email for SewSphere ✨",
       html,
     });
-    Labels.serviceLog.info(`Verification mail sent to ${to}`,{to})
+    Labels.serviceLog.info(`Verification mail sent to ${to}`, { to });
     return response;
   } catch (error) {
-    Labels.serviceLog.error(`Failed to send verification mail to ${to}`,{error,to})
+    Labels.serviceLog.error(`Failed to send verification mail to ${to}`, {
+      error,
+      to,
+    });
   }
 };
 
@@ -153,6 +161,7 @@ export const waitlistFollowUpEmail = async (to, role) => {
       <h1 style="color:#C76B4A; font-size:26px; margin:0;">
         Exciting Updates Are Coming! 🚀
       </h1>
+      <p>Hi ${to}</p>
 
       <p style="font-size:18px; color:#333; margin-top:10px;">
         Stay tuned — fashion awaits!
@@ -201,9 +210,84 @@ export const waitlistFollowUpEmail = async (to, role) => {
       html,
     });
 
-    Labels.serviceLog.info(`Follow-up email with fashion link sent to ${to}`, { to });
+    Labels.serviceLog.info(`Follow-up email with fashion link sent to ${to}`, {
+      to,
+    });
     return response;
   } catch (error) {
-    Labels.serviceLog.error(`Failed to send follow-up email to ${to}`, { error, to });
+    Labels.serviceLog.error(`Failed to send follow-up email to ${to}`, {
+      error,
+      to,
+    });
+  }
+};
+
+export const sendResetPasswordEmail = async (to, token) => {
+  try {
+    const currentYear = new Date().getFullYear();
+
+    // Construct reset password link
+    const resetLink = `https://yourapp.com/reset-password?token=${token}`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px 15px;">
+        <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; padding:40px 25px; border:1px solid #eaeaea;">
+          
+          <div style="text-align:center; margin-bottom:25px;">
+            <h1 style="color:#C76B4A; font-size:26px; margin:0;">Reset Your Password</h1>
+            <p>Hi ${to}</p>
+            <p style="font-size:18px; color:#333; margin-top:10px;">
+              Don’t worry, it happens to everyone!
+            </p>
+          </div>
+
+          <p style="font-size:16px; color:#444; line-height:1.7; text-align:justify;">
+            We received a request to reset your password. Click the button below to create a new password:
+          </p>
+
+          <div style="text-align:center; margin:30px 0;">
+            <a href="${resetLink}"
+               style="display:inline-block; background:#C76B4A; color:white; padding:10px 18px; border-radius:8px; text-decoration:none; font-size:14px;">
+               Reset Password 🔒
+            </a>
+          </div>
+
+          <div>
+          <p>or copy this link to your browser :</p>
+      <p>${resetLink}</p>
+          </div>
+
+          <p style="font-size:16px; color:#444; line-height:1.7; text-align:justify;">
+            If you didn’t request a password reset, you can safely ignore this email.
+          </p>
+
+          <hr style="border:none; border-top:1px solid #C76B4A; margin:30px 0;">
+
+          <p style="font-size:13px; color:#888; text-align:center;">
+            You're receiving this email because you requested a password reset.
+          </p>
+
+        </div>
+
+        <p style="font-size:13px; color:#888; text-align:center;">
+          © ${currentYear} SewSphere. All rights reserved
+        </p>
+      </div>
+    `;
+
+    const response = await resetPasswordEmail.emails.send({
+      from: "SewSphere Support <support@sewsphere.co>",
+      to,
+      subject: "Reset Your Password 🔒",
+      html,
+    });
+
+    Labels.serviceLog.info(`Password reset email sent to ${to}`, { to });
+    return response;
+  } catch (error) {
+    Labels.serviceLog.error(`Failed to send password reset email to ${to}`, {
+      error,
+      to,
+    });
   }
 };

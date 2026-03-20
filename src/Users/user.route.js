@@ -1,15 +1,18 @@
 import express from "express"
-import { registerUser,loginUser,forgotPassword,resetPassword,resendVerification } from "./user.controller.js"
+import { registerUser,loginUser,forgotPassword,resetPassword,resendVerification,changePassword } from "./user.controller.js"
 import { verifyEmail } from "./user.controller.js"
 import RateLimiter from "../guards/rateLimiter.js"
+import { authMiddleware } from "../Middlewares/authMiddleware.js"
+import { verifyLoggedInUser} from "../Middlewares/verifyUserMiddleware.js"
 
 const userRoute = express.Router()
 
-userRoute.post("/register",RateLimiter.registerLimiter,registerUser)
+userRoute.post("/register", RateLimiter.registerLimiter,registerUser)
 userRoute.patch("/verify-email",verifyEmail)
-userRoute.post("/resend-verification", RateLimiter.resendVerificationLimiter, resendVerification);
+userRoute.post("/resend-verification",RateLimiter.resendVerificationLimiter, resendVerification)
 userRoute.post("/login",RateLimiter.loginLimiter,loginUser)
 userRoute.post("/forgot-password",RateLimiter.forgotPasswordLimiter,forgotPassword)
 userRoute.post("/reset-password",RateLimiter.resetPasswordLimiter,resetPassword)
+userRoute.patch("/change-password",authMiddleware,verifyLoggedInUser,changePassword)
 
 export default userRoute;

@@ -1,12 +1,10 @@
 // controllers/userController.js
 import UserService from "./user.service.js";
-import {
-  registerUserValidationSchema,
-  loginUserValidationSchema,
-} from "./user.validation.js";
+import {registerUserValidationSchema,loginUserValidationSchema,changePasswordValidationSchema} from "./user.validation.js";
 import AppError from "../errorHandlers/appError.js";
 import ResponseHandler from "../utils/responseHandler.js";
 import Labels from "../utils/labels.js";
+import { forgotPasswordValidationSchema,resetPasswordValidationSchema } from "./user.validation.js";
 
 export const registerUser = async (req, res, next) => {
   try {
@@ -38,11 +36,13 @@ export const registerUser = async (req, res, next) => {
       201,
     );
   } catch (err) {
+
+    if(err.isOperational) return next(err)
     Labels.controllerLog.error("Unexpected error during user registration", {
       email: req.body?.email,
       error: err,
     });
-    next(err);
+    return next(new AppError("Something went wrong during registration",500));
   }
 };
 
@@ -60,13 +60,11 @@ export const verifyEmail = async (req, res, next) => {
       message: "Email verifcation successful",
     });
   } catch (err) {
+      if(err.isOperational) return next(err)
     Labels.controllerLog.error("Email verification failed", { error: err });
     // return res.redirect("/verification-failed")
-    return res.status(err.statusCode || 400).json({
-      status: "failed",
-      message: "Email verification failed",
-    });
-    next(error);
+    return next(new AppError("Something went wrong",500))
+
   }
 };
 
@@ -86,7 +84,7 @@ export const resendVerification = async (req, res, next) => {
         email: req.body.email,
         errors: messages,
       });
-      return next(new AppError(messages.join(", "), 400));
+      return next(new AppError(messages.join(", "), 500));
     }
 
     const result = await UserService.resendVerification(value.email);
@@ -100,11 +98,10 @@ export const resendVerification = async (req, res, next) => {
       message: result.message,
     });
   } catch (err) {
+      if(err.isOperational) return next(err)
     Labels.controllerLog.error("Resend verification failed", { error: err });
-    return res.status(err.statusCode || 400).json({
-      status: "fail",
-      message: err.message || "Resend verification failed",
-    });
+    return next (new AppError("Something went wrong",500))
+
   }
 };
 
@@ -138,11 +135,11 @@ export const loginUser = async (req, res, next) => {
       200,
     );
   } catch (err) {
+      if(err.isOperational) return next(err)
     Labels.controllerLog.error("Unexpected error during login", {
       email: req.body?.email,
       error: err,
     });
-    next(err);
   }
 };
 
@@ -158,19 +155,16 @@ export const forgotPassword = async (req, res, next) => {
       return next(new AppError(messages.join(", "), 400));
     }
 
-    const result = await UserService.forgotPassword(value.email);
-    return res.status(200).json({
-      status: "success",
-      message: result.message,
-    });
+    const result = await UserService.forgotPassword(value.email)
+    return ResponseHandler.success(res,`reset password link sent to :${value.email}` ,{email:value.email})
+  
   } catch (err) {
+
+    if(err.isOperational) return next(err)
     Labels.controllerLog.error("Forgot password failed", { error: err });
-    return res.status(err.statusCode || 400).json({
-      status: "fail",
-      message: err.message || "Forgot password failed",
-    });
-  }
-};
+    return next(new AppError("Something went wrong",500))
+
+}};
 
 export const resetPassword = async (req, res, next) => {
   try {
@@ -186,15 +180,43 @@ export const resetPassword = async (req, res, next) => {
 
     const { token } = req.query;
     const result = await UserService.resetPassword(token, value.newPassword);
-    return res.status(200).json({
-      status: "success",
-      message: result.message,
-    });
+
+    return ResponseHandler.success(res,result.message)
   } catch (err) {
+      if(err.isOperational) return next(err)
     Labels.controllerLog.error("Reset password failed", { error: err });
-    return res.status(err.statusCode || 400).json({
-      status: "fail",
-      message: err.message || "Reset password failed",
+    return next (new AppError("Something went wrong",500))
+  }
+};
+
+export const changePassword = async (req, res, next) => {
+  try {
+    const { error, value } = changePasswordValidationSchema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
     });
+
+    if (error) {
+      const messages = error.details.map((detail) => detail.message);
+      Labels.controllerLog.warn("Change password validation failed", {
+        error: messages,
+      });
+      return next(new AppError(messages.join(", "), 400));
+    }
+
+    const result = await UserService.changePassword(
+      req.user.id,
+      value.currentPassword,
+      value.newPassword
+    );
+
+    Labels.controllerLog.info("Password changed successfully", { userId: req.user.id });
+
+    return ResponseHandler.success(res, result.message);
+
+  } catch (err) {
+    if (err.isOperational) return next(err);
+    Labels.controllerLog.error("Change password failed", { error: err });
+    return next(new AppError("Something went wrong", 500));
   }
 };

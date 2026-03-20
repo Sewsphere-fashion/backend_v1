@@ -6,10 +6,10 @@ export const validationMessages = {
     "string.max": "Firstname cannot exceed 50 characters",
   },
   lastname: {
-    "any.required": "Please enter surname",
-    "string.empty": "Surname cannot be empty",
-    "string.min": "Surname must be at least 3 characters long",
-    "string.max": "Surname cannot exceed 50 characters",
+    "any.required": "Please enter lastname",
+    "string.empty": "lastname cannot be empty",
+    "string.min": "lastname must be at least 3 characters long",
+    "string.max": "lastname cannot exceed 50 characters",
   },
   email: {
     "any.required": "Please enter email",
