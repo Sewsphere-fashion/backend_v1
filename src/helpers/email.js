@@ -84,9 +84,7 @@ export const sendVerificationEmail = async (to, token) => {
   try {
     const currentYear = new Date().getFullYear();
     // production url
-    // const verificationUrl = `https://api.sewsphere.co/verify-email?token=${token}`;
-    // const verificationUrl = `http://localhost:8080/api/users/verify-email?token=${token}`;
-    const verificationUrl = `https://nonopposable-hugo-triadic.ngrok-free.dev/api/users/verify-email?token=${token}`;
+    const verificationUrl = `https://api.sewsphere.co/verify-email?token=${token}`;
 
     const html = `
 <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px 15px;">
