@@ -4,13 +4,16 @@ import AppError from "../errorHandlers/appError.js";
 import Guards from "../guards/guards.js";
 import crypto from "crypto";
 import Labels from "../utils/labels.js";
-import { sendVerificationEmail } from "../helpers/email.js";
+import { sendVerificationEmail,sendResetPasswordEmail } from "../helpers/email.js";
 // import EmailHelper from "../helpers/emailHelper.js";
 
 class UserService {
   static register = async (userData) => {
     const { firstName, lastName, email, password, role } = userData;
 
+    // if(!userData){
+    //   throw new AppError("All fields are required",400)
+    // }
     // Allowed roles
     const allowedRoles = ["client", "designer"];
 
@@ -36,9 +39,7 @@ class UserService {
       .createHash("sha256")
       .update(rawEmailToken)
       .digest("hex");
-      console.log("=== REGISTRATION ===");
-console.log("RAW token:", rawEmailToken);
-console.log("HASHED token stored in DB:", hashedEmailToken);
+     
     const emailVerificationExpire = Date.now() + 24 * 60 * 60 * 1000;
 
     // Create user in database
@@ -69,7 +70,6 @@ console.log("HASHED token stored in DB:", hashedEmailToken);
           `Failed to send verification email to ${email}`,
           { email, error: err },
         );
-        console.log(err);
       }
     };
     sendEmail();
@@ -141,7 +141,7 @@ console.log("HASHED token stored in DB:", hashedEmailToken);
     }
 
     // Generate JWT token
-    const token = Guards.createJwt({ id: user._id, role: user.role });
+    const token = Guards.createJwt({ id: user._id, role: user.role,email:user.email });
 
     Labels.serviceLog.info(`User logged in successfully`, { email, role: user.role });
 
@@ -158,6 +158,7 @@ console.log("HASHED token stored in DB:", hashedEmailToken);
         }
     };
 };
+
 // send forgot password
 static forgotPassword = async (email) => {
     if (!email) throw new AppError("Email is required", 400);
@@ -165,12 +166,12 @@ static forgotPassword = async (email) => {
     const user = await User.findOne({ email });
 
     // Always return same response — prevent email enumeration
-    if (!user) return { message: "If that email exists, a reset link has been sent" };
+    if (!user) throw new AppError("We'll send a reset link if that account exists")
 
     // Generate reset token — same pattern as email verification
     const rawResetToken = crypto.randomBytes(32).toString("hex");
     const hashedResetToken = crypto.createHash("sha256").update(rawResetToken).digest("hex");
-    const resetPasswordExpires = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
+    const resetPasswordExpires = Date.now() + 1 * 15 * 60 * 1000; // 15 minutes
 
     user.resetPasswordToken = hashedResetToken;
     user.resetPasswordExpires = resetPasswordExpires;
@@ -206,10 +207,33 @@ static forgotPassword = async (email) => {
     user.passwordChangedAt = Date.now();
     await user.save();
 
-    Labels.serviceLog.info(`Password reset successful for ${email}`, { email: user.email });
+    Labels.serviceLog.info(`Password reset successful for ${user.email}`, { email: user.email });
 
     return { message: "Password reset successful, please login with your new password" };
   };
+
+  static changePassword = async (userId, currentPassword, newPassword) => {
+  // Find user and include password field
+  const user = await User.findById(userId).select("+password");
+  if (!user) throw new AppError("User not found", 404);
+
+  // Verify current password is correct
+  const isPasswordCorrect = await Guards.comparePassword(currentPassword, user.password);
+  if (!isPasswordCorrect) throw new AppError("Current password is incorrect", 401);
+
+  // Make sure new password is different from current
+  const isSamePassword = await Guards.comparePassword(newPassword, user.password);
+  if (isSamePassword) throw new AppError("New password must be different from current password", 400);
+
+  // Update password
+  user.password = await Guards.hashPassword(newPassword);
+  user.passwordChangedAt = Date.now();
+  await user.save();
+
+  Labels.serviceLog.info(`Password changed successfully for ${user.email}`, { email: user.email });
+
+  return { message: "Password changed successfully, please login again" };
+};
 
   static resendVerification = async (email) => {
   if (!email) throw new AppError("Email is required", 400);

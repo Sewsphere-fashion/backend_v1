@@ -81,9 +81,14 @@ export const forgotPasswordValidationSchema = Joi.object({
 });
 
 export const resetPasswordValidationSchema = Joi.object({
-  newPassword: Joi.string().min(8).required().messages({
+  newPassword: Joi.string().min(8).required().pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])")).messages({
     "string.min": "Password must be at least 8 characters",
+    "string.pattern.base": "Password must contain at least one uppercase, lowercase, number and special character",
     "any.required": "New password is required",
+  }),
+   confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required().messages({
+    "any.only": "Passwords do not match",
+    "any.required": "Confirm password is required",
   }),
 });
 
@@ -94,3 +99,23 @@ export const resendVerificationValidationSchema = Joi.object({
     "string.empty": "Email cannot be empty",
   }),
 });
+
+export const changePasswordValidationSchema = Joi.object({
+  currentPassword: Joi.string().required().messages({
+    "any.required": "Current password is required",
+  }),
+  newPassword: Joi.string()
+    .min(8)
+    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])"))
+    .required()
+    .messages({
+      "string.min": "Password must be at least 8 characters",
+      "string.pattern.base": "Password must contain at least one uppercase, lowercase, number and special character",
+      "any.required": "New password is required",
+    }),
+  confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required().messages({
+    "any.only": "Passwords do not match",
+    "any.required": "Confirm password is required",
+  }),
+});
+
