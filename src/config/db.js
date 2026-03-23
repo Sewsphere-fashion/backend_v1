@@ -11,8 +11,8 @@ const connectDb = async () => {
         mongoose.set('strictQuery', false); 
         Labels.dbLog.info("db connection started")
         
-        // const conn = await mongoose.connect(config.mongo_uri);
-        const conn = await mongoose.connect(config.load_testing_db)
+        const conn = await mongoose.connect(config.mongo_uri);
+        // const conn = await mongoose.connect(config.load_testing_db)
         Labels.dbLog.info("db connection successful",{
             host:conn.connection.host,
             database:conn.connection.name,
