@@ -11,6 +11,9 @@ class UserService {
   static register = async (userData) => {
     const { firstName, lastName, email, password, role } = userData;
 
+    // if(!userData){
+    //   throw new AppError("All fields are required",400)
+    // }
     // Allowed roles
     const allowedRoles = ["client", "designer"];
 

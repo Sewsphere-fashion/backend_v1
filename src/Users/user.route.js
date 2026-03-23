@@ -7,10 +7,12 @@ import { verifyLoggedInUser} from "../Middlewares/verifyUserMiddleware.js"
 
 const userRoute = express.Router()
 
-userRoute.post("/register", RateLimiter.registerLimiter,registerUser)
+// userRoute.post("/register", RateLimiter.registerLimiter,registerUser)
+userRoute.post("/register", registerUser)
 userRoute.patch("/verify-email",verifyEmail)
 userRoute.post("/resend-verification",RateLimiter.resendVerificationLimiter, resendVerification)
-userRoute.post("/login",RateLimiter.loginLimiter,loginUser)
+// userRoute.post("/login",RateLimiter.loginLimiter,loginUser)
+userRoute.post("/login",loginUser)
 userRoute.post("/forgot-password",RateLimiter.forgotPasswordLimiter,forgotPassword)
 userRoute.post("/reset-password",RateLimiter.resetPasswordLimiter,resetPassword)
 userRoute.patch("/change-password",authMiddleware,verifyLoggedInUser,changePassword)

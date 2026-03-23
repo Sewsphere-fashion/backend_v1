@@ -16,6 +16,10 @@ import designerRoute from "./Designer/designerProfile/designerProfile.route.js";
 const app = express();
 app.set("trust proxy", 1);
 
+// const allowedOrigins = [
+
+// ]
+
 // security middlewares
 app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
@@ -24,15 +28,16 @@ app.use(urlencoded({ extended: true, limit: "10kb" }));
 app.use(hpp());
 app.use(cors({
   // origin:config.frontend_URL,
-  origin:"https://www.sewsphere.co",
-  methods: ["POST","GET"]
+  // origin:"https://www.sewsphere.co",
+  origin:"https://sewsphere-mvp.vercel.app",
+  methods: ["POST","GET","PATCH ","DELETE","PUT"]
 }));
 
 
 // logging route 
 app.use(routeLogger);
 // rate limiting
-app.use(RateLimiter.limiter);
+// app.use(RateLimiter.limiter);
 
 // route
 app.use("/api/waitlist", (req, res, next) => {
