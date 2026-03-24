@@ -9,7 +9,7 @@ const userRoute = express.Router()
 
 // userRoute.post("/register", RateLimiter.registerLimiter,registerUser)
 userRoute.post("/register", registerUser)
-userRoute.patch("/verify-email",verifyEmail)
+userRoute.get("/verify-email",verifyEmail)
 userRoute.post("/resend-verification",RateLimiter.resendVerificationLimiter, resendVerification)
 // userRoute.post("/login",RateLimiter.loginLimiter,loginUser)
 userRoute.post("/login",loginUser)
