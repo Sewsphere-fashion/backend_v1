@@ -49,26 +49,23 @@ export const registerUser = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.query;
-    const user = await UserService.verifyEmail(token);
-    if(!user){
-      return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=failed")
-    }
-    if(user.isVerified){
-      return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=already-verified")
-    }
 
-    user.isVerified = true;
-    await user.save()
-    Labels.controllerLog.info(`${user.email} successfully verified`, {
-      email:user.email,
-    });
-     return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=success")
+    await UserService.verifyEmail(token);
+
+    Labels.controllerLog.info(`Email successfully verified for token: ${token}`, { token });
+    return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=success");
 
   } catch (err) {
-      if(err.isOperational) return next(err)
-    Labels.controllerLog.error("Email verification failed", { error: err });
-    return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=failed")
 
+    if (err.isOperational) {
+      if (err.message.includes("already verified")) {
+        return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=already-verified");
+      }
+      return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=failed");
+    }
+    
+    Labels.controllerLog.error("Email verification failed", { error: err });
+    return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=failed");
   }
 };
 
