@@ -1,31 +1,38 @@
 import config from "../config/config.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
-
-class Guards{
-
-  static createJwt =(user)=>{
-   
+class Guards {
+  static createAccessToken = (user) => {
     const token = jwt.sign(
-    {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-    },
-    config.secret_key,
-    { expiresIn: "1d" },
-  );
-  return token;
-  }
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      config.secret_key,
+      { expiresIn: "15m" },
+    );
+    return token;
+  };
 
-  static hashPassword = (password)=>{
+  static createRefreshToken = () => {
+    const refreshToken = crypto.randomBytes(64).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
+    return { refreshToken, hashedToken };
+  };
+
+  static hashPassword = (password) => {
     return bcrypt.hashSync(password, 10);
-  }
+  };
 
   static comparePassword = (password, hashPassword) => {
-  return bcrypt.compare(password, hashPassword);
-};
+    return bcrypt.compare(password, hashPassword);
+  };
 }
 
 export default Guards;

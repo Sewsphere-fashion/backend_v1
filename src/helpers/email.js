@@ -225,7 +225,7 @@ export const sendResetPasswordEmail = async (to, token) => {
     const currentYear = new Date().getFullYear();
 
     // Construct reset password link
-    const resetLink = `https://yourapp.com/reset-password?token=${token}`;
+    const resetLink = `https://sewsphere-mvp.vercel.app/reset-password?token=${token}`;
 
     const html = `
       <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px 15px;">

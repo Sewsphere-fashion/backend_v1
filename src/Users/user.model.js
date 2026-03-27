@@ -37,15 +37,14 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
-
     passwordChangedAt: {
       type: Date,
       default: null,
     },
-
     emailVerificationToken: {
       type: String,
       default: null,
+      select: false,
     },
     emailVerificationExpire: {
       type: Date,
@@ -54,11 +53,19 @@ const userSchema = new Schema(
     resetPasswordToken: {
       type: String,
       default: null,
+      select: false,
     },
     resetPasswordExpires: {
       type: Date,
       default: null,
     },
+    refreshTokens: [
+      {
+        token: { type: String, select: false },
+        createdAt: { type: Date, default: Date.now },
+        expiresAt: { type: Date, required: true, index: true },
+      },
+    ],
   },
   { timestamps: true }
 );
