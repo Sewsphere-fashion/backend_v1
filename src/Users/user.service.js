@@ -145,7 +145,7 @@ class UserService {
     const now = new Date();
     const activeSessions = user.refreshTokens.filter((t) => t.expiresAt > now);
     // drop oldest
-    if (activeSessions.length >= MAX_SESSIONS) activeSessions.shift(); 
+    if (activeSessions.length >= MAX_SESSIONS) activeSessions.shift();
 
     user.refreshTokens = [
       ...activeSessions,
@@ -201,7 +201,7 @@ class UserService {
   // reset password
   static resetPassword = async (token, newPassword) => {
     if (!token) throw new AppError("Reset token is required", 400);
-  
+
     // Hash incoming token to match DB
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -293,6 +293,27 @@ class UserService {
     return {
       message: "If that email exists, a new verification link has been sent",
     };
+  };
+
+  static logout = async (refreshToken) => {
+    if (!refreshToken) return;
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      "refreshTokens.token": hashedToken,
+    });
+
+    if (!user) return;
+
+    user.refreshTokens = user.refreshTokens.filter(
+      (t) => t.token !== hashedToken,
+    );
+
+    await user.save();
   };
 }
 
