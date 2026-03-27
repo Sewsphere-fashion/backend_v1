@@ -45,8 +45,8 @@ app.use("/api/waitlist", (req, res, next) => {
     RateLimiter.waitlistLimiter(req, res, next);
 }, waitlistRouter);
 
-app.use("/api/users",userRoute)
-app.use("/api/designer",designerRoute)
+app.use("/api/v1/users",userRoute)
+app.use("/api/v1/designer",designerRoute)
 // ping route
 app.get("/ping", (req, res) => {
   res.json({ status: "alive" });
