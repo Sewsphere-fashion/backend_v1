@@ -1,6 +1,6 @@
 // controllers/userController.js
 import UserService from "./user.service.js";
-import {registerUserValidationSchema,loginUserValidationSchema,changePasswordValidationSchema,resendVerificationValidationSchema} from "./user.validation.js";
+import {registerUserValidationSchema,loginUserValidationSchema,changePasswordValidationSchema,resendVerificationValidationSchema.logout} from "./user.validation.js";
 import AppError from "../errorHandlers/appError.js";
 import ResponseHandler from "../utils/responseHandler.js";
 import Labels from "../utils/labels.js";
@@ -235,5 +235,27 @@ export const changePassword = async (req, res, next) => {
     if (err.isOperational) return next(err);
     Labels.controllerLog.error("Change password failed", { error: err });
     return next(new AppError("Something went wrong", 500));
+  }
+};
+
+export const logoutUser = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    await UserService.logout(refreshToken);
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return ResponseHandler.success(res, "Logged out successfully", null, 200);
+  } catch (err) {
+    Labels.controllerLog.error("Unexpected error during logout", {
+      userId: req.user?.id,
+      error: err,
+    });
+    return next(err);
   }
 };
