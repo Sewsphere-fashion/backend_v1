@@ -1,7 +1,6 @@
 import RateLimiter from "./guards/rateLimiter.js";
 import express, { urlencoded } from "express";
 import cors from "cors";
-import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
 import hpp from "hpp";
 import helmet from "helmet";
@@ -38,11 +37,8 @@ app.options(/.*/, cors({ origin: allowedCORS, credentials: true }));
 app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
 app.use(urlencoded({ extended: true, limit: "10kb" }));
-app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
-
-
 
 
 // logging route 
