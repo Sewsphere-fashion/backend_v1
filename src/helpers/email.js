@@ -220,6 +220,74 @@ export const waitlistFollowUpEmail = async (to, role) => {
   }
 };
 
+export const waitlistDesignerEmail = async (to) => {
+  try {
+    const currentYear = new Date().getFullYear();
+
+    const html = `
+    <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px 15px;">
+  
+      <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:12px; padding:40px 25px; border:1px solid #eaeaea;">
+
+        <div style="text-align:center; margin-bottom:25px;">
+          <h1 style="color:#C76B4A; font-size:26px; margin:0;">
+            Your Stage Is Almost Ready ✂️
+          </h1>
+          <p style="font-size:18px; color:#333; margin-top:10px;">
+            Get ready to showcase your talent!
+          </p>
+        </div>
+
+        <p style="font-size:16px; color:#444; line-height:1.7; text-align:justify;">
+          Hi ${to}, we're so excited to have you on the SewSphere waitlist as a designer.
+        </p>
+
+        <p style="font-size:16px; color:#444; line-height:1.7; text-align:justify;">
+          We're putting the finishing touches on a platform built specifically for talented designers like you — a space where you can showcase your work, connect with clients, and grow your brand.
+        </p>
+
+        <p style="font-size:16px; color:#444; line-height:1.7; text-align:justify;">
+          Our launch is just around the corner. Now is the perfect time to start preparing your portfolio so you hit the ground running the moment we go live.
+        </p>
+
+        <div style="text-align:center; margin:30px 0;">
+          <a href="https://sewsphere.co"
+             style="display:inline-block; background:#C76B4A; color:white; padding:10px 18px; border-radius:8px; text-decoration:none; font-size:14px;">
+             Learn More About SewSphere 🧵
+          </a>
+        </div>
+
+        <hr style="border:none; border-top:1px solid #C76B4A; margin:30px 0;">
+
+        <p style="font-size:13px; color:#888; text-align:center;">
+          You're receiving this email because you joined the SewSphere waitlist as a designer.
+        </p>
+
+        <p style="font-size:13px; color:#888; text-align:center;">
+          © ${currentYear} SewSphere. All rights reserved
+        </p>
+
+      </div>
+    </div>
+    `;
+
+    const response = await waitlistfollowUp.emails.send({
+      from: "SewSphere Updates <updates@sewsphere.co>",
+      to,
+      subject: "Your stage is almost ready — SewSphere is launching soon! ✂️",
+      html,
+    });
+
+    Labels.serviceLog.info(`Designer waitlist email sent to ${to}`, { to });
+    return response;
+  } catch (error) {
+    Labels.serviceLog.error(`Failed to send designer waitlist email to ${to}`, {
+      error,
+      to,
+    });
+  }
+};
+
 export const sendResetPasswordEmail = async (to, token) => {
   try {
     const currentYear = new Date().getFullYear();

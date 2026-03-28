@@ -16,6 +16,10 @@ const waitlistSchema = new mongoose.Schema({
     notified:{
         type:Boolean,
         default:false
+    },
+    designerNotified:{
+        type:Boolean,
+        default:false
     }
 },
 {timestamps:true}
