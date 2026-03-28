@@ -1,6 +1,6 @@
 // controllers/userController.js
 import UserService from "./user.service.js";
-import {registerUserValidationSchema,loginUserValidationSchema,changePasswordValidationSchema,resendVerificationValidationSchema.logout} from "./user.validation.js";
+import {registerUserValidationSchema,loginUserValidationSchema,changePasswordValidationSchema,resendVerificationValidationSchema} from "./user.validation.js";
 import AppError from "../errorHandlers/appError.js";
 import ResponseHandler from "../utils/responseHandler.js";
 import Labels from "../utils/labels.js";
