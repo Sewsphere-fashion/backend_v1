@@ -1,7 +1,8 @@
 import RateLimiter from "./guards/rateLimiter.js";
 import express, { urlencoded } from "express";
 import cors from "cors";
-// import mongoSanitize from "express-mongo-sanitize";
+import mongoSanitize from "express-mongo-sanitize";
+import xss from "xss-clean";
 import hpp from "hpp";
 import helmet from "helmet";
 import waitlistRouter from "./waitlist/waitlist.route.js";
@@ -16,22 +17,27 @@ import designerRoute from "./Designer/designerProfile/designerProfile.route.js";
 const app = express();
 app.set("trust proxy", 1);
 
-// const allowedOrigins = [
-
-// ]
-
 // security middlewares
 app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
 app.use(urlencoded({ extended: true, limit: "10kb" }));
-// app.use(mongoSanitize());
+app.use(mongoSanitize());
+app.use(xss());
 app.use(hpp());
-app.use(cors({
-  // origin:config.frontend_URL,
-  // origin:"https://www.sewsphere.co",
-  origin:"https://sewsphere-mvp.vercel.app",
-  methods: ["POST","GET","PATCH ","DELETE","PUT"]
-}));
+
+const allowedCORS = [
+  "https://sewsphere-mvp.vercel.app",
+  "https://www.sewsphere.co",
+];
+
+app.use(
+  cors({
+    origin: allowedCORS,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 
 // logging route 
