@@ -15,20 +15,14 @@ import userRoute from "./Users/user.route.js";
 import designerRoute from "./Designer/designerProfile/designerProfile.route.js";
 
 const app = express();
-app.set("trust proxy", 1);
-
-// security middlewares
-app.use(helmet());
-app.use(express.json({ limit: "10kb" }));
-app.use(urlencoded({ extended: true, limit: "10kb" }));
-app.use(mongoSanitize());
-app.use(xss());
-app.use(hpp());
 
 const allowedCORS = [
   "https://sewsphere-mvp.vercel.app",
   "https://www.sewsphere.co",
 ];
+
+app.set("trust proxy", 1);
+
 
 app.use(
   cors({
@@ -38,6 +32,17 @@ app.use(
     credentials: true,
   })
 );
+app.options(/.*/, cors({ origin: allowedCORS, credentials: true }));
+
+// security middlewares
+app.use(helmet());
+app.use(express.json({ limit: "10kb" }));
+app.use(urlencoded({ extended: true, limit: "10kb" }));
+app.use(mongoSanitize());
+app.use(xss());
+app.use(hpp());
+
+
 
 
 // logging route 
