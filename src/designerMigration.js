@@ -6,12 +6,11 @@ const migrateOldUsers = async () => {
   try {
 
     await connectDb()
+  
     const result = await Waitlist.updateMany(
-      { role:"desginer", designerNotified: { $exists: false } }, // desingers without notified field
+      { role:"designer", designerNotified: { $exists: false } }, // desingers without notified field
       { $set: { designerNotified: false } }     // set notified to false
     );
-    const all = await Waitlist.find({ role: "designer" });
-console.log(all);
 
     console.log(`Migrated ${result.modifiedCount} old users.`);
     process.exit(0);
