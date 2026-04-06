@@ -1,5 +1,5 @@
 import express from "express"
-import { registerUser,loginUser,forgotPassword,resetPassword,resendVerification,changePassword ,logoutUser} from "./user.controller.js"
+import { registerUser,loginUser,forgotPassword,resetPassword,resendVerification,changePassword ,logoutUser,getGoogleAuthUrlController,googleCallbackController,completeGoogleProfileController} from "./user.controller.js"
 import { verifyEmail } from "./user.controller.js"
 import RateLimiter from "../guards/rateLimiter.js"
 import { authMiddleware } from "../Middlewares/authMiddleware.js"
@@ -19,5 +19,10 @@ userRoute.post("/forgot-password",RateLimiter.forgotPasswordLimiter,forgotPasswo
 userRoute.post("/reset-password",resetPassword)
 userRoute.patch("/change-password",authMiddleware,verifyLoggedInUser,changePassword)
 userRoute.post("/logout",authMiddleware,logoutUser)
+
+// oauth routes
+userRoute.get("/google/url", getGoogleAuthUrlController);
+userRoute.get("/google/callback", googleCallbackController);
+userRoute.post("/google/complete-profile",completeGoogleProfileController)
 
 export default userRoute;
