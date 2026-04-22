@@ -1,27 +1,64 @@
 // destructing basics from winston
-import {createLogger,format,transports} from "winston"
+import {createLogger,format,transports,addColors} from "winston"
 import config from "../config/config.js"
 import {once} from "events"
 import {WinstonTransport as AxiomTransport} from "@axiomhq/winston";
 
+addColors({
+  info:"blue",
+  warn:"yellow",
+  error:"red",
+  debug:"gray"
+})
+
+
+// export const logger = createLogger({
+//     // 
+//     level:"info", //logs only if info.level is less than or equal to this level
+//     format:format.combine(
+//      
+//         format.timestamp({format:"YYYY-MM-DD HH:mm:ss"}),
+//         format.printf((info)=>{return `${info.timestamp} [${info.level.toUpperCase()}] [${info.label}] ${info.message}`}),
+//         format.json()
+//     ),
+//     transports:[
+//         new transports.Console(),
+//         new AxiomTransport({
+//             dataset:config.axiom_dataset,
+//             token:config.axiom_api_key
+//         })
+//     ]
+//     ,
+//     exitOnError:false
+// });
+
+
+const consoleFormat = format.combine(
+    format.colorize({ all: true }),
+    format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    format.printf((info) => {
+        return `${info.timestamp} [${info.level.toUpperCase()}] [${info.label}] ${info.message}`;
+    })
+);
+
+const axiomFormat = format.combine(
+    format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    format.json()
+);
 
 export const logger = createLogger({
-    // 
-    level:"info", //logs only if info.level is less than or equal to this level
-    format:format.combine(
-        format.timestamp({format:"YYYY-MM-DD HH:mm:ss"}),
-        format.printf((info)=>{return `${info.timestamp} [${info.level.toUpperCase()}] [${info.label}] ${info.message}`}),
-        format.json()
-    ),
-    transports:[
-        new transports.Console(),
+    level: "info",
+    transports: [
+        new transports.Console({
+            format: consoleFormat 
+        }),
         new AxiomTransport({
-            dataset:config.axiom_dataset,
-            token:config.axiom_api_key
+            dataset: config.axiom_dataset,
+            token: config.axiom_api_key,
+            format: axiomFormat 
         })
-    ]
-    ,
-    exitOnError:false
+    ],
+    exitOnError: false
 });
 
 // graceful shutdown

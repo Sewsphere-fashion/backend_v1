@@ -9,16 +9,22 @@ const DESIGNER_SPECIALITIES = [
   "Womenswear Designer",
   "Kids Wear Designer",
   "Luxury Fashion Designer",
-  "Traditional Designer"
+  "Traditional Designer",
 ];
 
 export const DesignerValidator = Joi.object({
-  speciality: Joi.string()
-    .trim()
-    .valid(...DESIGNER_SPECIALITIES)
+  speciality: Joi.array()
+    .items(
+      Joi.string()
+        .trim()
+        .valid(...DESIGNER_SPECIALITIES),
+    )
+    .min(1)
     .required()
-    .messages({"any.only":`Speciality must be one of ${DESIGNER_SPECIALITIES.join(", ")}`}),
-    
+    .messages({
+      "any.only": `Speciality must be one of ${DESIGNER_SPECIALITIES.join(", ")}`,
+    }),
+
   city: Joi.string()
     .trim()
     .min(2)

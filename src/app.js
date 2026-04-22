@@ -11,6 +11,7 @@ import routeLogger from "./Middlewares/routeLogger.js";
 import config from "./config/config.js";
 import userRoute from "./Users/user.route.js";
 import designerRoute from "./Designer/designerProfile/designerProfile.route.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
 app.use(urlencoded({ extended: true, limit: "10kb" }));
 app.use(hpp());
+app.use(cookieParser())
 
 
 // logging route 
@@ -51,7 +53,7 @@ app.use("/api/waitlist", (req, res, next) => {
 }, waitlistRouter);
 
 app.use("/api/v1/users",userRoute)
-app.use("/api/v1/designer",designerRoute)
+app.use("/api/v1/designers",designerRoute)
 // ping route
 app.get("/ping", (req, res) => {
   res.json({ status: "alive" });

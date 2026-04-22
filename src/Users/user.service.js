@@ -8,7 +8,13 @@ import {
   sendVerificationEmail,
   sendResetPasswordEmail,
 } from "../helpers/email.js";
+import jwt from "jsonwebtoken"
+import config from "../config/config.js";
+import axios from "axios"
 // import EmailHelper from "../helpers/emailHelper.js";
+
+const SCOPE = "openid email profile";
+ const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 
 class UserService {
   static register = async (userData) => {
@@ -38,7 +44,7 @@ class UserService {
       .update(rawEmailToken)
       .digest("hex");
 
-    const emailVerificationExpire = Date.now() + 24 * 60 * 60 * 1000;
+    const emailVerificationExpire = Date.now() + 30 * 60 * 1000;
 
     // Create user in database
     const user = await User.create({
@@ -116,7 +122,7 @@ class UserService {
 
   // login logic
   static login = async (userData) => {
-    const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+   
     const MAX_SESSIONS = 5;
 
     const { email, password } = userData;
@@ -314,6 +320,113 @@ class UserService {
     );
 
     await user.save();
+  };
+
+  static getGoogleUrl = () => {
+    const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+    const options = new URLSearchParams({
+      client_id: config.google_client_id,
+      redirect_uri: config.redirect_uri,
+      response_type:"code",
+      scope: SCOPE,
+      access_type: "offline",
+      prompt: "consent",
+    });
+    return `${rootUrl}?${options.toString()}`;
+  };
+
+  // exchange code for token and decode user info
+  static getGoogleUserInfo = async (code) => {
+    try {
+      const tokenResponse = await axios.post(
+        "https://oauth2.googleapis.com/token",
+        new URLSearchParams({
+          code,
+          client_id: config.google_client_id,
+          client_secret: config.google_client_secret,
+          redirect_uri: config.redirect_uri,
+          grant_type: "authorization_code",
+        }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } },
+      );
+      const { id_token } = tokenResponse.data;
+
+      // contains email, name ,profile
+      return jwt.decode(id_token);
+    } catch (err) {
+      Labels.serviceLog.error("Failed to exchange Google code for token", {
+        error: err.message,
+      });
+      throw new AppError("Failed to login with Google", 500);
+    }
+  };
+  // create/find user & generate app tokens
+static googleLoginFlow = async (googleUserInfo) => {
+  const { email, name, sub } = googleUserInfo;
+  let user = await User.findOne({ email });
+
+  // existing user logins normally
+  if (user) {
+    const accessToken = Guards.createAccessToken(user);
+    const { refreshToken, hashedToken } = Guards.createRefreshToken();
+    const refreshTokenExpiresAt = new Date(
+      Date.now() + REFRESH_TOKEN_EXPIRY_MS,
+    );
+    user.refreshTokens = [
+      ...(user.refreshTokens || []),
+      { token: hashedToken, expiresAt: refreshTokenExpiresAt },
+    ];
+    await user.save();
+
+    Labels.serviceLog.info("Exisitng User logged in via Google", { email: user.email });
+    const displayName = user.firstName || user.name || user.email;
+
+    return { isNewUser: false, user, accessToken, refreshToken, displayName };
+  }
+
+  Labels.serviceLog.info("New Google user detected, profile completion required", {
+    email,
+  });
+  return {
+    isNewUser: true,
+    googleProfile: { email, name, googleId: sub },
+  };
+};
+  static completeGoogleProfileFlow = async (profileData) => {
+    const { email, googleId, firstName, lastName, phone } = profileData;
+
+    // Safety check — prevent duplicate accounts
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new AppError("User with this email already exists", 409);
+    }
+
+    const user = await User.create({
+      email,
+      googleId,
+      firstName,
+      lastName,
+      phone,
+      role: "user",
+    });
+
+    const accessToken = Guards.createAccessToken(user);
+    const { refreshToken, hashedToken } = Guards.createRefreshToken();
+    const refreshTokenExpiresAt = new Date(
+      Date.now() + REFRESH_TOKEN_EXPIRY_MS,
+    );
+
+    user.refreshTokens = [
+      ...(user.refreshTokens || []),
+      { token: hashedToken, expiresAt: refreshTokenExpiresAt },
+    ];
+    await user.save();
+
+    Labels.serviceLog.info("New Google user profile completed", {
+      email: user.email,
+    });
+
+    return { user, accessToken, refreshToken };
   };
 }
 

@@ -141,7 +141,8 @@ export const loginUser = async (req, res, next) => {
       role: result.user.role,
     });
 
-    return ResponseHandler.success(
+    // console.log("RESULT:", result)
+    return ResponseHandler.ok(
       res,
       "Login successful",
       {
@@ -256,6 +257,78 @@ export const logoutUser = async (req, res, next) => {
       userId: req.user?.id,
       error: err,
     });
+    return next(err);
+  }
+};
+
+export const getGoogleAuthUrlController = (req, res, next) => {
+  try {
+    const url = UserService.getGoogleUrl();
+    return ResponseHandler.ok(res, "Google OAuth URL", { url });
+  } catch (err) {
+    console.log(err);
+    
+    return next(err);
+  }
+}
+
+export const googleCallbackController = async (req, res, next) => {
+  const code = req.query.code;
+
+  if (!code) {
+    return next(new AppError("No code provided", 400));
+  }
+
+  try {
+    const googleUserInfo = await UserService.getGoogleUserInfo(code);
+    const result = await UserService.googleLoginFlow(googleUserInfo);
+
+    // New user — prompt frontend to complete profile
+    if (result.isNewUser) {
+      // frontend uses this to prefill the form
+      return ResponseHandler.ok(res, "Complete your profile to continue", {
+        isNewUser: true,
+        googleProfile: result.googleProfile,
+      });
+    }
+
+    // Existing user — normal login response
+    const { user, accessToken, refreshToken, displayName } = result;
+    return ResponseHandler.ok(res, `Login Successful! Welcome ${displayName}`, {
+      isNewUser: false,
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    Labels.controllerLog.error("Error during Google login");
+    console.log(err);
+    return next(new AppError("Failed to login with Google", 500));
+  }
+};
+
+
+export const completeGoogleProfileController = async (req, res, next) => {
+  try {
+    const { user, accessToken, refreshToken } = await UserService.completeGoogleProfileFlow(req.body);
+
+    return ResponseHandler.success(res, `Welcome ${user.firstName}!`, {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        name: user.firstName,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    Labels.controllerLog.error("Error completing Google profile", { error: err.message });
     return next(err);
   }
 };
