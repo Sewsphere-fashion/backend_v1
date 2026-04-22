@@ -141,7 +141,7 @@ export const loginUser = async (req, res, next) => {
       role: result.user.role,
     });
 
-    console.log("RESULT:", result)
+    // console.log("RESULT:", result)
     return ResponseHandler.ok(
       res,
       "Login successful",

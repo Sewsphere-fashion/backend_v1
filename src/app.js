@@ -53,7 +53,7 @@ app.use("/api/waitlist", (req, res, next) => {
 }, waitlistRouter);
 
 app.use("/api/v1/users",userRoute)
-app.use("/api/v1/designer",designerRoute)
+app.use("/api/v1/designers",designerRoute)
 // ping route
 app.get("/ping", (req, res) => {
   res.json({ status: "alive" });

@@ -158,7 +158,6 @@ class UserService {
       { token: hashedToken, expiresAt: refreshTokenExpiresAt },
     ];
     await user.save();
-    console.log("ACCESS TOKEN:", accessToken);
 
     return {
       accessToken,
