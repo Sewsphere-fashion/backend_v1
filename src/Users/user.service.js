@@ -86,7 +86,7 @@ class UserService {
         lastName: user.lastName,
         email: user.email,
         role: user.role,
-        isVerified: user.isVerified,
+        emailVerifiedAt: user.emailVerifiedAt,
       },
       allowedRoles,
       message:
@@ -106,9 +106,9 @@ class UserService {
     });
 
     if (!user) throw new AppError("Invalid or expired verification token", 400);
-    if (user.isVerified) throw new AppError("Email is already verified", 400);
+    if (user.emailVerifiedAt) throw new AppError("Email is already verified", 400);
 
-    user.isVerified = true;
+    user.emailVerifiedAt = new Date();
     user.emailVerificationToken = undefined;
     user.emailVerificationExpire = undefined;
     await user.save();
@@ -130,7 +130,7 @@ class UserService {
     // Find user and validate credentials
     const user = await User.findOne({ email }).select("+password");
     if (!user) throw new AppError("Invalid email or password", 401);
-    if (!user.isVerified)
+    if (!user.emailVerifiedAt)
       throw new AppError("Please verify your email before logging in", 403);
 
     const isPasswordCorrect = await Guards.comparePassword(
@@ -280,7 +280,7 @@ class UserService {
         message: "If that email exists, a new verification link has been sent",
       };
 
-    if (user.isVerified) throw new AppError("Email is already verified", 400);
+    if (user.emailVerifiedAt) throw new AppError("Email is already verified", 400);
 
     const rawEmailToken = crypto.randomBytes(32).toString("hex");
     const hashedEmailToken = crypto

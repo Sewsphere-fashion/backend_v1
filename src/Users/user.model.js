@@ -42,9 +42,9 @@ const userSchema = new Schema(
       default: "client",
       required: true,
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
+    emailVerifiedAt:{
+      type : Date,
+      default : null
     },
     passwordChangedAt: {
       type: Date,
