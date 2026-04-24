@@ -1,5 +1,5 @@
-import connectDb from "./config/db.js";
-import User from "./Users/user.model.js";
+import connectDb from "../config/db.js";
+import User from "../Users/user.model.js";
 
 const emailVerifiedAtMigration = async () => {
   try {

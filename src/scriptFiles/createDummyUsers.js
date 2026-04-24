@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import User from "./Users/user.model.js";
+import User from "../Users/user.model.js";
 import bcrypt from "bcrypt";
 // import config from "./config/config.js";
-import connectDb from "./config/db.js";
+import connectDb from "../config/db.js";
 
 
 
