@@ -3,6 +3,7 @@ import { DesignerValidator } from "./designerProfileValidationSchema.js";
 import AppError from "../../errorHandlers/appError.js";
 import Labels from "../../utils/labels.js";
 import ResponseHandler from "../../utils/responseHandler.js";
+import { optional } from "joi";
 
 class DesignerController {
   // Create designer profile
@@ -90,6 +91,8 @@ class DesignerController {
 
       const { error, value } = DesignerValidator.validate(req.body, {
         abortEarly: false,
+        // all fields become optional for PATCH cos of the single validator
+        presence: "optional"
       });
 
       if (error) {
@@ -110,7 +113,7 @@ class DesignerController {
         userId,
       });
 
-      return ResponseHandler.success(
+      return ResponseHandler.ok(
         res,
         "Profile successfully updated",
         updatedDesigner,
