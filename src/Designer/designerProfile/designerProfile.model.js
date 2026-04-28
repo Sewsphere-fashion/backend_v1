@@ -26,9 +26,9 @@ const designerSchema = new Schema(
       type: String,
       required: [true, "city is required"],
     },
-    country: {
+    state: {
       type: String,
-      required: [true, "country is required"],
+      required: [true, "state is required"],
     },
     bio: {
       type: String,

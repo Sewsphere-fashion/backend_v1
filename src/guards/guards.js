@@ -19,10 +19,7 @@ class Guards {
 
   static createRefreshToken = () => {
     const refreshToken = crypto.randomBytes(64).toString("hex");
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(refreshToken)
-      .digest("hex");
+    const hashedToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
     return { refreshToken, hashedToken };
   };
 

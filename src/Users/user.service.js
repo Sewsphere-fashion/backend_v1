@@ -8,13 +8,14 @@ import {
   sendVerificationEmail,
   sendResetPasswordEmail,
 } from "../helpers/email.js";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 import config from "../config/config.js";
-import axios from "axios"
+import axios from "axios";
+import { v2 as cloudinary } from "cloudinary";
 // import EmailHelper from "../helpers/emailHelper.js";
 
 const SCOPE = "openid email profile";
- const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 
 class UserService {
   static register = async (userData) => {
@@ -106,7 +107,8 @@ class UserService {
     });
 
     if (!user) throw new AppError("Invalid or expired verification token", 400);
-    if (user.emailVerifiedAt) throw new AppError("Email is already verified", 400);
+    if (user.emailVerifiedAt)
+      throw new AppError("Email is already verified", 400);
 
     user.emailVerifiedAt = new Date();
     user.emailVerificationToken = undefined;
@@ -122,9 +124,6 @@ class UserService {
 
   // login logic
   static login = async (userData) => {
-   
-    const MAX_SESSIONS = 5;
-
     const { email, password } = userData;
 
     // Find user and validate credentials
@@ -148,15 +147,8 @@ class UserService {
     );
 
     // Prune expired tokens, enforce session cap, then add new token
-    const now = new Date();
-    const activeSessions = user.refreshTokens.filter((t) => t.expiresAt > now);
-    // drop oldest
-    if (activeSessions.length >= MAX_SESSIONS) activeSessions.shift();
+    user.handleTokenRotation(hashedToken, refreshTokenExpiresAt);
 
-    user.refreshTokens = [
-      ...activeSessions,
-      { token: hashedToken, expiresAt: refreshTokenExpiresAt },
-    ];
     await user.save();
 
     return {
@@ -169,7 +161,56 @@ class UserService {
         lastName: user.lastName,
         email: user.email,
         role: user.role,
-        isVerified: user.isVerified,
+        emailVerifiedAt: user.emailVerifiedAt,
+      },
+    };
+  };
+
+  // refresh token
+  static refreshToken = async (oldRefreshToken) => {
+    if (!oldRefreshToken) throw new AppError("Refresh token is required", 401);
+
+    // Hash the incoming token to compare with stored hash
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(oldRefreshToken)
+      .digest("hex");
+
+    // Find user with matching token
+    const user = await User.findOne({
+      "refreshTokens.token": hashedToken,
+    }).select("+refreshTokens.token");
+
+    if (!user) throw new AppError("Invalid refresh token", 401);
+
+    // Check if the matched token is expired
+    const storedToken = user.refreshTokens.find((t) => t.token === hashedToken);
+    if (storedToken.expiresAt < new Date())
+      throw new AppError("Refresh token expired, please login again", 401);
+
+    // Generate new tokens
+    const accessToken = Guards.createAccessToken(user);
+    const { refreshToken, hashedToken: newHashedToken } =
+      Guards.createRefreshToken();
+    const refreshTokenExpiresAt = new Date(
+      Date.now() + REFRESH_TOKEN_EXPIRY_MS,
+    );
+
+    // Rotate refresh token
+    user.handleTokenRotation(newHashedToken, refreshTokenExpiresAt);
+    await user.save();
+
+    return {
+      accessToken,
+      refreshToken,
+      expiresAt: refreshTokenExpiresAt,
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        emailVerifiedAt: user.emailVerifiedAt,
       },
     };
   };
@@ -280,7 +321,8 @@ class UserService {
         message: "If that email exists, a new verification link has been sent",
       };
 
-    if (user.emailVerifiedAt) throw new AppError("Email is already verified", 400);
+    if (user.emailVerifiedAt)
+      throw new AppError("Email is already verified", 400);
 
     const rawEmailToken = crypto.randomBytes(32).toString("hex");
     const hashedEmailToken = crypto
@@ -302,32 +344,32 @@ class UserService {
   };
 
   static logout = async (refreshToken) => {
-    if (!refreshToken) return;
+  if (!refreshToken) return;
 
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(refreshToken)
-      .digest("hex");
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
 
-    const user = await User.findOne({
-      "refreshTokens.token": hashedToken,
-    });
+  const user = await User.findOne({
+    "refreshTokens.token": hashedToken,
+  }).select("+refreshTokens.token");
 
-    if (!user) return;
+  if (!user) return;
 
-    user.refreshTokens = user.refreshTokens.filter(
-      (t) => t.token !== hashedToken,
-    );
+  user.refreshTokens = user.refreshTokens.filter(
+    (t) => t.token !== hashedToken,
+  );
 
-    await user.save();
-  };
+  await user.save();
+};
 
   static getGoogleUrl = () => {
     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
     const options = new URLSearchParams({
       client_id: config.google_client_id,
       redirect_uri: config.redirect_uri,
-      response_type:"code",
+      response_type: "code",
       scope: SCOPE,
       access_type: "offline",
       prompt: "consent",
@@ -361,37 +403,42 @@ class UserService {
     }
   };
   // create/find user & generate app tokens
-static googleLoginFlow = async (googleUserInfo) => {
-  const { email, name, sub } = googleUserInfo;
-  let user = await User.findOne({ email });
+  static googleLoginFlow = async (googleUserInfo) => {
+    const { email, name, sub } = googleUserInfo;
+    let user = await User.findOne({ email });
 
-  // existing user logins normally
-  if (user) {
-    const accessToken = Guards.createAccessToken(user);
-    const { refreshToken, hashedToken } = Guards.createRefreshToken();
-    const refreshTokenExpiresAt = new Date(
-      Date.now() + REFRESH_TOKEN_EXPIRY_MS,
+    // existing user logins normally
+    if (user) {
+      const accessToken = Guards.createAccessToken(user);
+      const { refreshToken, hashedToken } = Guards.createRefreshToken();
+      const refreshTokenExpiresAt = new Date(
+        Date.now() + REFRESH_TOKEN_EXPIRY_MS,
+      );
+      user.refreshTokens = [
+        ...(user.refreshTokens || []),
+        { token: hashedToken, expiresAt: refreshTokenExpiresAt },
+      ];
+      await user.save();
+
+      Labels.serviceLog.info("Exisitng User logged in via Google", {
+        email: user.email,
+      });
+      const displayName = user.firstName || user.name || user.email;
+
+      return { isNewUser: false, user, accessToken, refreshToken, displayName };
+    }
+
+    Labels.serviceLog.info(
+      "New Google user detected, profile completion required",
+      {
+        email,
+      },
     );
-    user.refreshTokens = [
-      ...(user.refreshTokens || []),
-      { token: hashedToken, expiresAt: refreshTokenExpiresAt },
-    ];
-    await user.save();
-
-    Labels.serviceLog.info("Exisitng User logged in via Google", { email: user.email });
-    const displayName = user.firstName || user.name || user.email;
-
-    return { isNewUser: false, user, accessToken, refreshToken, displayName };
-  }
-
-  Labels.serviceLog.info("New Google user detected, profile completion required", {
-    email,
-  });
-  return {
-    isNewUser: true,
-    googleProfile: { email, name, googleId: sub },
+    return {
+      isNewUser: true,
+      googleProfile: { email, name, googleId: sub },
+    };
   };
-};
   static completeGoogleProfileFlow = async (profileData) => {
     const { email, googleId, firstName, lastName, phone } = profileData;
 
@@ -427,6 +474,31 @@ static googleLoginFlow = async (googleUserInfo) => {
     });
 
     return { user, accessToken, refreshToken };
+  };
+
+  static updateProfilePicture = async (userId, imageUrl, publicId) => {
+    // Find the user first to get their old image public ID
+    const existingUser = await User.findById(userId);
+    if (!existingUser) throw new AppError("User not found", 404);
+
+    // If they already have a profile picture, delete the old one from Cloudinary
+    if (existingUser.profilePicture.publicId) {
+      await cloudinary.uploader.destroy(existingUser.profilePicture.publicId);
+    }
+
+    // Save the new image URL and public ID
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        profilePicture: {
+          url: imageUrl,
+          publicId: publicId,
+        },
+      },
+      { new: true },
+    ).select("-password -__v");
+
+    return user;
   };
 }
 

@@ -1,10 +1,19 @@
 // controllers/userController.js
 import UserService from "./user.service.js";
-import {registerUserValidationSchema,loginUserValidationSchema,changePasswordValidationSchema,resendVerificationValidationSchema} from "./user.validation.js";
+import {
+  registerUserValidationSchema,
+  loginUserValidationSchema,
+  changePasswordValidationSchema,
+  resendVerificationValidationSchema,
+} from "./user.validation.js";
 import AppError from "../errorHandlers/appError.js";
 import ResponseHandler from "../utils/responseHandler.js";
 import Labels from "../utils/labels.js";
-import { forgotPasswordValidationSchema,resetPasswordValidationSchema } from "./user.validation.js";
+import {
+  forgotPasswordValidationSchema,
+  resetPasswordValidationSchema,
+} from "./user.validation.js";
+import { uploadImage } from "../config/cloudinary.config.js";
 
 export const registerUser = async (req, res, next) => {
   try {
@@ -36,36 +45,45 @@ export const registerUser = async (req, res, next) => {
       201,
     );
   } catch (err) {
-
-    if(err.isOperational) return next(err)
+    if (err.isOperational) return next(err);
     Labels.controllerLog.error("Unexpected error during user registration", {
       email: req.body?.email,
       error: err,
     });
-    return next(new AppError("Something went wrong during registration",500));
+    return next(new AppError("Something went wrong during registration", 500));
   }
 };
 
 export const verifyEmail = async (req, res, next) => {
   try {
-    const { token } = req.query;
+    const { token } = req.params;
 
     await UserService.verifyEmail(token);
 
-    Labels.controllerLog.info(`Email successfully verified for token: ${token}`, { token });
-    return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=success");
-
+    Labels.controllerLog.info(
+      `Email successfully verified for token: ${token}`,
+      { token },
+    );
+    // return ResponseHandler.ok(res,"verification successfull verified")
+    return res.redirect(
+      "https://sewsphere-mvp.vercel.app/verification?status=success",
+    );
   } catch (err) {
-
+    // console.error('error verifying email',err)
     if (err.isOperational) {
       if (err.message.includes("already verified")) {
-        return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=already-verified");
+        return res.redirect(
+          "https://sewsphere-mvp.vercel.app/verification?status=already-verified",
+        );
       }
-      return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=failed");
+      return res.redirect(
+        "https://sewsphere-mvp.vercel.app/verification?status=failed",
+      );
     }
-    
     Labels.controllerLog.error("Email verification failed", { error: err });
-    return res.redirect("https://sewsphere-mvp.vercel.app/verification?status=failed");
+    return res.redirect(
+      "https://sewsphere-mvp.vercel.app/verification?status=failed",
+    );
   }
 };
 
@@ -99,17 +117,14 @@ export const resendVerification = async (req, res, next) => {
       message: result.message,
     });
   } catch (err) {
-      if(err.isOperational) return next(err)
+    if (err.isOperational) return next(err);
     Labels.controllerLog.error("Resend verification failed", { error: err });
-    return next (new AppError("Something went wrong",500))
-
+    return next(new AppError("Something went wrong", 500));
   }
 };
 
 export const loginUser = async (req, res, next) => {
-
   const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
-
 
   try {
     const { error, value } = loginUserValidationSchema.validate(req.body, {
@@ -161,6 +176,44 @@ export const loginUser = async (req, res, next) => {
   }
 };
 
+export const refreshToken = async (req, res, next) => {
+  const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+
+  try {
+    const oldRefreshToken = req.cookies.refreshToken;
+
+    const result = await UserService.refreshToken(oldRefreshToken);
+
+    // Set new refresh token cookie
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: REFRESH_TOKEN_EXPIRY_MS,
+    });
+
+    Labels.controllerLog.info("Token refreshed successfully", {
+      email: result.user.email,
+    });
+
+    return ResponseHandler.ok(
+      res,
+      "Token refreshed successfully",
+      {
+        user: result.user,
+        accessToken: result.accessToken,
+        expiresAt: result.expiresAt,
+      },
+      200,
+    );
+  } catch (err) {
+    Labels.controllerLog.error("Unexpected error during token refresh", {
+      error: err,
+    });
+    return next(err);
+  }
+};
+
 export const forgotPassword = async (req, res, next) => {
   try {
     const { error, value } = forgotPasswordValidationSchema.validate(req.body, {
@@ -173,16 +226,17 @@ export const forgotPassword = async (req, res, next) => {
       return next(new AppError(messages.join(", "), 400));
     }
 
-    const result = await UserService.forgotPassword(value.email)
-    return ResponseHandler.success(res, "If that email exists, a reset link has been sent")
-  
+    const result = await UserService.forgotPassword(value.email);
+    return ResponseHandler.success(
+      res,
+      "If that email exists, a reset link has been sent",
+    );
   } catch (err) {
-
-    if(err.isOperational) return next(err)
+    if (err.isOperational) return next(err);
     Labels.controllerLog.error("Forgot password failed", { error: err });
-    return next(new AppError("Something went wrong",500))
-
-}};
+    return next(new AppError("Something went wrong", 500));
+  }
+};
 
 export const resetPassword = async (req, res, next) => {
   try {
@@ -196,14 +250,14 @@ export const resetPassword = async (req, res, next) => {
       return next(new AppError(messages.join(", "), 400));
     }
 
-    const { token } = req.query;
+    const { token } = req.params;
     const result = await UserService.resetPassword(token, value.newPassword);
 
-    return ResponseHandler.success(res,result.message)
+    return ResponseHandler.success(res, result.message);
   } catch (err) {
-      if(err.isOperational) return next(err)
+    if (err.isOperational) return next(err);
     Labels.controllerLog.error("Reset password failed", { error: err });
-    return next (new AppError("Something went wrong",500))
+    return next(new AppError("Something went wrong", 500));
   }
 };
 
@@ -225,13 +279,14 @@ export const changePassword = async (req, res, next) => {
     const result = await UserService.changePassword(
       req.user.id,
       value.currentPassword,
-      value.newPassword
+      value.newPassword,
     );
 
-    Labels.controllerLog.info("Password changed successfully", { userId: req.user.id });
+    Labels.controllerLog.info("Password changed successfully", {
+      userId: req.user.id,
+    });
 
     return ResponseHandler.ok(res, result.message);
-
   } catch (err) {
     if (err.isOperational) return next(err);
     Labels.controllerLog.error("Change password failed", { error: err });
@@ -267,10 +322,10 @@ export const getGoogleAuthUrlController = (req, res, next) => {
     return ResponseHandler.ok(res, "Google OAuth URL", { url });
   } catch (err) {
     console.log(err);
-    
+
     return next(err);
   }
-}
+};
 
 export const googleCallbackController = async (req, res, next) => {
   const code = req.query.code;
@@ -312,10 +367,10 @@ export const googleCallbackController = async (req, res, next) => {
   }
 };
 
-
 export const completeGoogleProfileController = async (req, res, next) => {
   try {
-    const { user, accessToken, refreshToken } = await UserService.completeGoogleProfileFlow(req.body);
+    const { user, accessToken, refreshToken } =
+      await UserService.completeGoogleProfileFlow(req.body);
 
     return ResponseHandler.success(res, `Welcome ${user.firstName}!`, {
       accessToken,
@@ -328,7 +383,33 @@ export const completeGoogleProfileController = async (req, res, next) => {
       },
     });
   } catch (err) {
-    Labels.controllerLog.error("Error completing Google profile", { error: err.message });
+    Labels.controllerLog.error("Error completing Google profile", {
+      error: err.message,
+    });
     return next(err);
   }
 };
+
+export const uploadProfilePicture = (req, res, next) => {
+  uploadImage.single("photo")(req, res, async function (err) {
+    if (err) return next(new AppError(err.message, 400));
+
+    try {
+      const imageUrl = req.file.path; // Cloudinary URL
+      const publicId = req.file.filename; // Cloudinary public ID
+
+      const user = await UserService.updateProfilePicture(req.user._id, imageUrl, publicId);
+
+      res.status(200).json({
+        message: "Profile picture updated",
+        profilePicture: user.profilePicture,
+      });
+    } catch (error) {
+      next(new AppError(error.message, 500));
+    }
+  });
+};
+
+
+
+

@@ -29,7 +29,8 @@ const userSchema = new Schema(
       select: false,
     },
     profilePicture: {
-      type: String,
+      url: { type: String, default: null },
+      publicId: { type: String, default: null },
     },
     authProvider: {
       type: String,
@@ -42,9 +43,9 @@ const userSchema = new Schema(
       default: "client",
       required: true,
     },
-    emailVerifiedAt:{
-      type : Date,
-      default : null
+    emailVerifiedAt: {
+      type: Date,
+      default: null,
     },
     passwordChangedAt: {
       type: Date,
@@ -78,6 +79,13 @@ const userSchema = new Schema(
   },
   { timestamps: true },
 );
+// Reusable session management — used in login & refresh token rotation
+userSchema.methods.handleTokenRotation = function (hashedToken, expiresAt, maxSessions = 5) {
+  const now = new Date();
+  let activeSessions = this.refreshTokens.filter((t) => t.expiresAt > now);
+  if (activeSessions.length >= maxSessions) activeSessions.shift();
+  this.refreshTokens = [...activeSessions, { token: hashedToken, expiresAt }];
+};
 
 const User = model("User", userSchema);
 

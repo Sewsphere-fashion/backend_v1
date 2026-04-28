@@ -12,6 +12,7 @@ import config from "./config/config.js";
 import userRoute from "./Users/user.route.js";
 import designerRoute from "./Designer/designerProfile/designerProfile.route.js";
 import cookieParser from "cookie-parser";
+import portfolioRouter from "../src/Designer/designerPortfolio/designerPortfolio.route.js"
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use("/api/waitlist", (req, res, next) => {
 
 app.use("/api/v1/users",userRoute)
 app.use("/api/v1/designers",designerRoute)
+app.use("/api/v1/portfolio",portfolioRouter)
 // ping route
 app.get("/ping", (req, res) => {
   res.json({ status: "alive" });
