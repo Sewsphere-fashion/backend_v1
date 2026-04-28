@@ -7,7 +7,7 @@ import Labels from "../../utils/labels.js";
 class DesignerService {
 
   static createDesigner = async (userId,data) => {
-    const { speciality, city, country, bio } = data;
+    const { speciality, city, state, bio } = data;
 
     // Check if user exists
     const user = await User.findById(userId);

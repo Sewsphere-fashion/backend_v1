@@ -49,7 +49,7 @@ export const validationMessages = {
     "string.max": "City cannot exceed 100 characters",
     "string.base": "City must be a string",
   },
-  country: {
+  state: {
     "any.required": "Please enter country",
     "string.empty": "Country cannot be empty",
     "string.min": "Country must be at least 2 characters long",

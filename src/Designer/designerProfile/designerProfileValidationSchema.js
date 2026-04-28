@@ -32,7 +32,7 @@ export const DesignerValidator = Joi.object({
     .required()
     .messages(validationMessages.city),
 
-  country: Joi.string()
+  state: Joi.string()
     .trim()
     .min(2)
     .max(100)
