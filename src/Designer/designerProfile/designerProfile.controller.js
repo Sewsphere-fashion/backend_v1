@@ -1,8 +1,9 @@
 import DesignerService from "./designerProfileService.js";
-import { DesignerValidator } from "./designerProfileValidationSchema.js";
+import { DesignerValidator,DesignerUpdateValidator } from "./designerProfileValidationSchema.js";
 import AppError from "../../errorHandlers/appError.js";
 import Labels from "../../utils/labels.js";
 import ResponseHandler from "../../utils/responseHandler.js";
+
 
 class DesignerController {
   // Create designer profile
@@ -88,8 +89,9 @@ class DesignerController {
     try {
       const userId = req.user._id;
 
-      const { error, value } = DesignerValidator.validate(req.body, {
+      const { error, value } = DesignerUpdateValidator.validate(req.body, {
         abortEarly: false,
+
       });
 
       if (error) {
@@ -110,7 +112,7 @@ class DesignerController {
         userId,
       });
 
-      return ResponseHandler.success(
+      return ResponseHandler.ok(
         res,
         "Profile successfully updated",
         updatedDesigner,
