@@ -34,7 +34,7 @@ class DesignerService {
       userId,
       speciality,
       city,
-      country,
+      state,
       bio,
     });
 
