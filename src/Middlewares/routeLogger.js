@@ -9,13 +9,13 @@ const routeLogger = (req,res,next)=>{
     Labels.routeLog.info(`Incoming: ${req.method} ${req.url}`,{
         method:req.method,
         url:req.url,
+        // selects jst the user ip
         ip:(req.headers["x-forwarded-for"] || req.ip).split(",")[0].trim()
     });
 
     // set up a listener for when response finishes
     res.on("finish",()=>{
         // calculate how long it took
-
         const duration=Date.now() - start
 
         // log that request completed
@@ -24,6 +24,7 @@ const routeLogger = (req,res,next)=>{
             url:req.url,
             statusCode:res.statusCode,
             duration:`${duration}ms`,
+            // selects jst the user ip
             ip:(req.headers["x-forwarded-for"] || req.ip).split(",")[0].trim()
         })
     })
