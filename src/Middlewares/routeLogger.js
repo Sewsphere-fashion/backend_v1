@@ -9,7 +9,7 @@ const routeLogger = (req,res,next)=>{
     Labels.routeLog.info(`Incoming: ${req.method} ${req.url}`,{
         method:req.method,
         url:req.url,
-        ip:req.ip
+        ip:req.headers["x-forwarded-for"] || req.ip
     });
 
     // set up a listener for when response finishes
@@ -24,7 +24,7 @@ const routeLogger = (req,res,next)=>{
             url:req.url,
             statusCode:res.statusCode,
             duration:`${duration}ms`,
-            ip:req.ip
+            ip:req.headers["x-forwarded-for"] || req.ip
         })
     })
     // continue to the next 
