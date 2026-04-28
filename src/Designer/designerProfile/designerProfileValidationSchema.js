@@ -2,14 +2,18 @@ import { validationMessages } from "../../utils/validationMessages.js";
 import Joi from "joi";
 
 const DESIGNER_SPECIALITIES = [
-  "Bridal Designer",
-  "Aso-Ebi Designer",
-  "Streetwear Designer",
-  "Menswear Designer",
-  "Womenswear Designer",
-  "Kids Wear Designer",
-  "Luxury Fashion Designer",
-  "Traditional Designer",
+ "Custom Pattern Making",
+  "Ready-to-wear",
+  "Security Wear",
+  "Bridal Wear",
+  "Children wear",
+  "Scrub",
+  "Men's Traditional Wear",
+  "Wedding Outfit",
+  "Embroidery / Beading",
+  "Culture Outfit",
+  "Corporate wear",
+  "Ankara Design",
 ];
 
 export const DesignerValidator = Joi.object({
