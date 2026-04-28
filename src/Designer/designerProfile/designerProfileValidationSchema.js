@@ -41,12 +41,47 @@ export const DesignerValidator = Joi.object({
     .min(2)
     .max(100)
     .required()
-    .messages(validationMessages.country),
+    .messages(validationMessages.state),
 
   bio: Joi.string()
     .trim()
     .min(10)
     .max(500)
     .required()
+    .messages(validationMessages.bio),
+});
+
+export const DesignerUpdateValidator = Joi.object({
+  speciality: Joi.array()
+    .items(
+      Joi.string()
+        .trim()
+        .valid(...DESIGNER_SPECIALITIES),
+    )
+    .min(1)
+    .optional()
+    .messages({
+      "any.only": `Speciality must be one of ${DESIGNER_SPECIALITIES.join(", ")}`,
+    }),
+
+  city: Joi.string()
+    .trim()
+    .min(2)
+    .max(100)
+    .optional()
+    .messages(validationMessages.city),
+
+  state: Joi.string()
+    .trim()
+    .min(2)
+    .max(100)
+    .optional()
+    .messages(validationMessages.state),
+
+  bio: Joi.string()
+    .trim()
+    .min(10)
+    .max(500)
+    .optional()
     .messages(validationMessages.bio),
 });
